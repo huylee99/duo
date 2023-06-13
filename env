@@ -1,6 +1,0 @@
-DATABASE_HOST=aws.connect.psdb.cloud
-DATABASE_USERNAME=8kekuqcnrw2avle1y975
-DATABASE_PASSWORD=pscale_pw_bljk5HDIPlQhmPYr4Tpf8FzvZ85ajsO4n6BkfOTKjPA
-DATABASE_URL='mysql://8kekuqcnrw2avle1y975:pscale_pw_bljk5HDIPlQhmPYr4Tpf8FzvZ85ajsO4n6BkfOTKjPA@aws.connect.psdb.cloud/duo?ssl={"rejectUnauthorized":true}'
-GOOGLE_CLIENT_ID=177777931334-h4blqrrsdc3v0r98bkqnspoh60nt072t.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
