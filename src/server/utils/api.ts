@@ -1,6 +1,6 @@
 import { httpBatchLink, loggerLink, splitLink, httpLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
-import type { AppRouter } from "../routers/_app";
+import type { AppRouter } from "../routers";
 import superjson from "superjson";
 import { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 

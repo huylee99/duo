@@ -9,10 +9,12 @@ export const env = createEnv({
     DATABASE_URL: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
+    NEXTAUTH_SECRET: z.string().min(1),
     NODE_ENV: z.enum(["development", "production", "test"]),
   },
   client: {},
   runtimeEnv: {
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     DATABASE_HOST: process.env.DATABASE_HOST,
     DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
     DATABASE_USERNAME: process.env.DATABASE_USERNAME,
