@@ -1,9 +1,9 @@
-import type { Adapter, AdapterAccount } from "next-auth/adapters";
+import type { Adapter } from "next-auth/adapters";
 import type { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless";
-import { user, account, session, verificationToken } from "~/db/schema";
-import { eq, or, and } from "drizzle-orm";
+import { user, account, session, verificationToken } from "~/server/db/schema";
+import { eq, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
-import * as schema from "../db/schema";
+import * as schema from "../server/db/schema";
 
 export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter {
   return {
