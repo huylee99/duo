@@ -26,11 +26,13 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
     getUser: async id => {
       const result = await db.select().from(user).where(eq(user.id, id)).limit(1);
 
-      return result[0];
+      const row = result[0];
+
+      return row ?? null;
     },
     getUserByEmail: async email => {
       const result = await db.select().from(user).where(eq(user.email, email)).limit(1);
-      return result[0];
+      return result[0] ?? null;
     },
     getUserByAccount: async data => {
       const result = await db
@@ -79,9 +81,14 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
     },
     updateSession: async data => {
       await db.update(session).set(data).where(eq(session.sessionToken, data.sessionToken));
-      const rows = await db.select().from(session).where(eq(session.sessionToken, data.sessionToken)).limit(1);
 
-      return rows[0];
+      const rows = await db.select().from(session).where(eq(session.sessionToken, data.sessionToken)).limit(1);
+      const row = rows[0];
+
+      if (!row) {
+        throw new Error("Failed to update session");
+      }
+      return row;
     },
     deleteSession: async sessionToken => {
       await db.delete(session).where(eq(session.sessionToken, sessionToken));
