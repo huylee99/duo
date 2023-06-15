@@ -24,7 +24,6 @@ declare module "next-auth" {
       id?: string;
       isBanned?: boolean;
     } & DefaultSession["user"];
-    error?: "SessionExpired" | "BannedUser";
   }
 }
 
@@ -35,7 +34,6 @@ declare module "next-auth/jwt" {
       is_banned?: boolean;
       id?: string;
     };
-    error?: "SessionExpired" | "BannedUser";
   }
 }
 
@@ -116,9 +114,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
     error: "/login",
-  },
-  session: {
-    strategy: "database",
   },
   secret: env.NEXTAUTH_SECRET,
 };

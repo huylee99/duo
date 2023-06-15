@@ -22,9 +22,7 @@ const App = ({ Component, pageProps, session }: AppPropsWithLayout) => {
   return getLayout(
     <>
       <SessionProvider session={session}>
-        <AuthWrapper>
-          <Component {...pageProps} />
-        </AuthWrapper>
+        <Component {...pageProps} />
       </SessionProvider>
       <Toaster
         position="top-center"
@@ -39,18 +37,6 @@ const App = ({ Component, pageProps, session }: AppPropsWithLayout) => {
       />
     </>
   );
-};
-
-const AuthWrapper = (props: { children: React.ReactNode }) => {
-  const session = useSession();
-
-  useEffect(() => {
-    if (session.data?.error === "RefreshAccessTokenError") {
-      signOut();
-    }
-  }, [session.data?.error]);
-
-  return props.children;
 };
 
 export default api.withTRPC(App);
