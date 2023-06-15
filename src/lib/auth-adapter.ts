@@ -8,8 +8,7 @@ import * as schema from "../server/db/schema";
 export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter {
   return {
     createUser: async data => {
-      console.log(data);
-      const result = await db.insert(user).values({
+      await db.insert(user).values({
         email: data.email,
         emailVerified: data.emailVerified,
         image: data.image,
@@ -17,13 +16,12 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
         id: randomUUID(),
       });
       const rows = await db.select().from(user).where(eq(user.email, data.email)).limit(1);
-      const row = rows[0];
 
-      if (!row) {
+      if (!rows[0]) {
         throw new Error("Failed to create user");
       }
 
-      return row;
+      return rows[0];
     },
     getUser: async id => {
       const result = await db.select().from(user).where(eq(user.id, id)).limit(1);
