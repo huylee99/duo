@@ -1,11 +1,15 @@
-import { mysqlTable, varchar, int, text, uniqueIndex, index, timestamp, date, primaryKey } from "drizzle-orm/mysql-core";
-import { relations } from "drizzle-orm";
+import { mysqlTable, varchar, int, text, uniqueIndex, index, timestamp, date, primaryKey, boolean } from "drizzle-orm/mysql-core";
+import { relations, InferModel } from "drizzle-orm";
 
 export const user = mysqlTable(
   "users",
   {
     id: varchar("id", { length: 36 }).notNull(),
     name: varchar("name", { length: 191 }),
+    isBanned: boolean("is_banned").default(false).notNull(),
+    role: varchar("role", { enum: ["admin", "user", "partner"], length: 8 })
+      .notNull()
+      .default("user"),
     email: varchar("email", { length: 191 }).notNull(),
     emailVerified: timestamp("emailVerified"),
     image: varchar("image", { length: 191 }),
@@ -18,6 +22,8 @@ export const user = mysqlTable(
   }
 );
 
+export type ROLE = InferModel<typeof user, "select">["role"];
+
 export const account = mysqlTable(
   "accounts",
   {
@@ -28,6 +34,7 @@ export const account = mysqlTable(
     providerAccountId: varchar("providerAccountId", { length: 191 }).notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
+    hashedPassword: varchar("password", { length: 191 }),
     expires_at: int("expires_at"),
     token_type: varchar("token_type", { length: 191 }),
     scope: varchar("scope", { length: 191 }),
@@ -76,9 +83,15 @@ export const userRelations = relations(user, ({ many }) => ({
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user),
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
 }));
 
-export const accountRelations = relations(session, ({ one }) => ({
-  user: one(user),
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
 }));
