@@ -10,7 +10,7 @@ import { DefaultJWT } from "next-auth/jwt";
 import { account, user } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { sign, verify } from "jsonwebtoken";
-import dayjs from "dayjs";
+import { DefaultAdapter } from "next-auth/adapters";
 
 const VERCEL_DEPLOYMENT = !!process.env.VERCEL_URL;
 
@@ -18,9 +18,8 @@ declare module "next-auth" {
   interface User extends DefaultUser {
     role: ROLE;
     isBanned: boolean;
-    refreshToken: string;
-    accessToken: string;
-    expires_at: number;
+    accessToken?: string;
+    expires_at?: number;
   }
 
   interface Session extends DefaultSession {
