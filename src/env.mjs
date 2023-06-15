@@ -9,6 +9,9 @@ export const env = createEnv({
     DATABASE_URL: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
+    DISCORD_CLIENT_SECRET: z.string().min(1),
+    DISCORD_CLIENT_ID: z.string().min(1),
+    DISCORD_AUTH_URL: z.string().min(1),
     NEXTAUTH_SECRET: z.string().min(1),
     NODE_ENV: z.enum(["development", "production", "test"]),
   },
@@ -22,5 +25,8 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     NODE_ENV: process.env.NODE_ENV,
+    DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
+    DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+    DISCORD_AUTH_URL: process.env.DISCORD_AUTH_URL,
   },
 });

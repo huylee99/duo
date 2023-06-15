@@ -34,7 +34,6 @@ export const account = mysqlTable(
     providerAccountId: varchar("providerAccountId", { length: 191 }).notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
-    hashedPassword: varchar("password", { length: 191 }),
     expires_at: int("expires_at"),
     token_type: varchar("token_type", { length: 191 }),
     scope: varchar("scope", { length: 191 }),
@@ -73,7 +72,9 @@ export const verificationToken = mysqlTable(
     expires: date("expires").notNull(),
   },
   table => {
-    return { tokenIdx: uniqueIndex("token_idx").on(table.token) };
+    return {
+      tokenIdx: uniqueIndex("token_idx").on(table.token),
+    };
   }
 );
 
