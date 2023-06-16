@@ -14,6 +14,7 @@ export const env = createEnv({
     DISCORD_AUTH_URL: z.string().min(1),
     NEXTAUTH_SECRET: z.string().min(1),
     NODE_ENV: z.enum(["development", "production", "test"]),
+    RESEND_KEY: z.string().min(1),
   },
   client: {},
   runtimeEnv: {
@@ -28,5 +29,6 @@ export const env = createEnv({
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     DISCORD_AUTH_URL: process.env.DISCORD_AUTH_URL,
+    RESEND_KEY: process.env.RESEND_KEY,
   },
 });

@@ -38,7 +38,7 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
       const result = await db
         .select()
         .from(user)
-        .innerJoin(account, eq(account.userId, user.id))
+        .leftJoin(account, eq(account.userId, user.id))
         .where(and(eq(account.providerAccountId, data.providerAccountId), eq(account.provider, data.provider)))
         .limit(1);
 
@@ -65,8 +65,7 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
       await db.delete(account).where(and(eq(account.provider, provider), eq(account.providerAccountId, providerAccountId)));
     },
     getSessionAndUser: async sessionToken => {
-      const result = await db.select().from(session).where(eq(session.sessionToken, sessionToken)).leftJoin(user, eq(session.userId, user.id)).limit(1);
-
+      const result = await db.select().from(session).where(eq(session.sessionToken, sessionToken)).innerJoin(user, eq(user.id, session.userId)).limit(1);
       if (result[0] && result[0].sessions && result[0].users) {
         return { session: result[0].sessions, user: result[0].users };
       }
@@ -106,19 +105,21 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
         token: token.token,
       };
     },
-    useVerificationToken: async data => {
-      try {
-        const token = await db.select().from(verificationToken).where(eq(verificationToken.token, data.token)).limit(1);
-        await db.delete(verificationToken).where(eq(verificationToken.token, data.token));
+    useVerificationToken: async ({ identifier, token }) => {
+      const rows = await db.select().from(verificationToken).where(eq(verificationToken.token, token)).limit(1);
+      const row = rows[0];
 
-        return {
-          expires: token[0].expires,
-          identifier: token[0].indentifier,
-          token: token[0].token,
-        };
-      } catch (error) {
+      if (!row) {
         return null;
       }
+
+      await db.delete(verificationToken).where(and(eq(verificationToken.token, token), eq(verificationToken.indentifier, identifier)));
+
+      return {
+        token: row.token,
+        identifier: row.indentifier,
+        expires: row.expires,
+      };
     },
   };
 }
