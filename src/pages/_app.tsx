@@ -21,7 +21,7 @@ const App = ({ Component, pageProps, session }: AppPropsWithLayout) => {
 
   return getLayout(
     <>
-      <SessionProvider session={session}>
+      <SessionProvider session={session} refetchOnWindowFocus={false}>
         <Component {...pageProps} />
       </SessionProvider>
       <Toaster

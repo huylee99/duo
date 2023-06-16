@@ -2,6 +2,8 @@ import { db } from "~/server/db/root";
 import { DrizzleAdapter } from "~/lib/auth-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import DiscordProvider from "next-auth/providers/discord";
+import EmailProvider from "~/lib/email-provider";
+
 import NextAuth, { getServerSession, type NextAuthOptions, type DefaultUser, DefaultSession } from "next-auth";
 import { env } from "~/env.mjs";
 import { GetServerSidePropsContext } from "next";
@@ -9,6 +11,8 @@ import type { ROLE } from "../db/schema";
 import { DefaultJWT } from "next-auth/jwt";
 import { user } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { sendEmail } from "~/lib/email";
+import MagicLinkEmail from "~/components/email/magic-link-email";
 
 const VERCEL_DEPLOYMENT = !!process.env.VERCEL_URL;
 
@@ -50,6 +54,16 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.DISCORD_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
       authorization: env.DISCORD_AUTH_URL,
+    }),
+    EmailProvider({
+      async sendVerificationRequest({ identifier, url }) {
+        await sendEmail({
+          to: identifier,
+          from: "onboarding@resend.dev",
+          subject: "Link đăng nhập vnpal.gg",
+          react: MagicLinkEmail({ magicLink: url }),
+        });
+      },
     }),
   ],
   callbacks: {
@@ -94,8 +108,10 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (user) {
-        session.user = user;
+        const { emailVerified, ...rest } = user;
+        session.user = rest;
       }
+
       return session;
     },
   },
@@ -110,10 +126,14 @@ export const authOptions: NextAuthOptions = {
       },
     },
   },
+  logger: {
+    error(code, metadata) {
+      console.error(code, metadata);
+    },
+  },
   debug: env.NODE_ENV === "development",
   pages: {
     signIn: "/login",
-    error: "/login",
   },
   secret: env.NEXTAUTH_SECRET,
 };

@@ -5,8 +5,18 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
+import { useForm } from "react-hook-form";
+import { emailValidator, type Email } from "~/shared/validators/email-validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 
 const LoginPage = function () {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<Email>({ resolver: zodResolver(emailValidator) });
   const [isLoading, setIsLoading] = useState<"google" | "discord" | "email">();
 
   const loginWithGoogle = async () => {
@@ -17,6 +27,19 @@ const LoginPage = function () {
       setIsLoading(undefined);
     }
   };
+
+  const loginWithEmail = handleSubmit(async data => {
+    setIsLoading("email");
+    const result = await signIn("email", { email: data.email, callbackUrl: "/admin", redirect: false });
+    setIsLoading(undefined);
+    if (result?.error) {
+      toast.error("Đã có lỗi xảy ra, vui lòng thử lại.");
+      return;
+    }
+
+    reset();
+    toast.success("Vui lòng kiểm tra email để đăng nhập.");
+  });
 
   const loginWithDiscord = async () => {
     setIsLoading("discord");
@@ -33,15 +56,16 @@ const LoginPage = function () {
           <h1 className="text-2xl font-semibold tracking-tight">Tạo tài khoản và đăng nhập</h1>
           <p className="text-sm text-muted-foreground">Vui lòng nhập Email vào bên dưới để đăng nhập</p>
         </div>
-        <form className="w-full">
+        <form className="w-full" onSubmit={loginWithEmail}>
           <div className="grid gap-2 w-full">
             <div className="grid gap-1">
               <Label className="sr-only" htmlFor="email">
                 Email
               </Label>
-              <Input id="email" placeholder="abcd@example.com" type="email" autoCapitalize="none" autoComplete="email" autoCorrect="off" disabled={isLoading !== undefined} />
+              <Input {...register("email")} placeholder="abcd@example.com" type="email" autoCapitalize="none" autoComplete="email" autoCorrect="off" disabled={isLoading !== undefined} />
+              {errors.email && <span className="text-xs text-red-500">Email không hợp lệ</span>}
             </div>
-            <Button disabled={isLoading !== undefined}>
+            <Button type="submit" disabled={isLoading !== undefined}>
               {isLoading === "email" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Đăng nhập với Email
             </Button>
