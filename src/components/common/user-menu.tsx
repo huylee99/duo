@@ -1,4 +1,4 @@
-import { Cloud, CreditCard, Github, Keyboard, LifeBuoy, LogOut, Mail, MessageSquare, Plus, PlusCircle, Settings, User, UserPlus, Users } from "lucide-react";
+import { Cloud, CreditCard, Github, Palette, Laptop, Keyboard, LifeBuoy, LogOut, Mail, MessageSquare, Plus, PlusCircle, Settings, User, UserPlus, Users, Moon, Sun } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { signOut } from "next-auth/react";

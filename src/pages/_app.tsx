@@ -27,23 +27,19 @@ const App = ({ Component, pageProps, session }: AppPropsWithLayout) => {
     <>
       <main className={inter.className}>
         <SessionProvider session={pageProps.session || session} refetchOnWindowFocus={false}>
-          {getLayout(
-            <ThemeProvider>
-              <Component {...pageProps} />
-              <Toaster
-                position="top-center"
-                reverseOrder={false}
-                toastOptions={{
-                  className: "font-medium text-sm shadow-md",
-                  duration: 4000,
-                  style: {
-                    color: "black",
-                  },
-                }}
-              />
-            </ThemeProvider>
-          )}
+          <ThemeProvider attribute="class">{getLayout(<Component {...pageProps} />)}</ThemeProvider>
         </SessionProvider>
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+          toastOptions={{
+            className: "font-medium text-sm shadow-md",
+            duration: 4000,
+            style: {
+              color: "black",
+            },
+          }}
+        />
       </main>
     </>
   );

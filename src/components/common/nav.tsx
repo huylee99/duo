@@ -1,15 +1,46 @@
 import { useSession } from "next-auth/react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import { Bell } from "lucide-react";
+import { Bell, Moon, Sun } from "lucide-react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import UserMenu from "./user-menu";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 const navigation = [
   { name: "Trang chủ", href: "/" },
   { name: "Khám phá", href: "/explore" },
 ];
+
+const ThemeToggle = () => {
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  const activeTheme = theme === "system" ? resolvedTheme : theme;
+
+  const handleChangeTheme = () => {
+    if (activeTheme === "dark") {
+      setTheme("light");
+    } else {
+      setTheme("dark");
+    }
+  };
+
+  return (
+    <div className="w-8 h-8 hover:bg-muted rounded-full flex justify-center items-center transition-[background-color] cursor-pointer" onClick={handleChangeTheme}>
+      {activeTheme === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+    </div>
+  );
+};
 
 const Nav = () => {
   const router = useRouter();
@@ -33,6 +64,7 @@ const Nav = () => {
           </ul>
         </nav>
         <div className="flex-1 flex justify-end items-center space-x-4">
+          <ThemeToggle />
           {session.status === "authenticated" && (
             <>
               <div className="w-8 h-8 hover:bg-muted rounded-full flex justify-center items-center transition-[background-color] cursor-pointer">
