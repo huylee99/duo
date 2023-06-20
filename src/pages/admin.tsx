@@ -3,10 +3,11 @@ import { getServerAuthSession } from "~/server/utils/auth";
 import { Session } from "next-auth";
 import { NextPageWithLayout } from "./_app";
 import { authorizedRoles } from "~/utils/authorized-roles";
+import CommonLayout from "~/layout/common-layout";
 
-const AUTHORIZED_ROLES = authorizedRoles(["admin"]);
+const AUTHORIZED_ROLES = authorizedRoles(["admin", "user"]);
 
-export const getServerSideProps: GetServerSideProps<{ user: Session["user"] }> = async context => {
+export const getServerSideProps: GetServerSideProps<{ session: Session }> = async context => {
   const auth = await getServerAuthSession(context);
 
   if (!auth) {
@@ -29,18 +30,22 @@ export const getServerSideProps: GetServerSideProps<{ user: Session["user"] }> =
 
   return {
     props: {
-      user: auth.user,
+      session: auth,
     },
   };
 };
 
-const Admin: NextPageWithLayout<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ user }) => {
+const Admin: NextPageWithLayout<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ session }) => {
   return (
     <div>
       <h1>Admin</h1>
-      <p>Logged in as {user.email}</p>
+      <p>Logged in as {session.user.email}</p>
     </div>
   );
+};
+
+Admin.getLayout = function (page: React.ReactElement) {
+  return <CommonLayout>{page}</CommonLayout>;
 };
 
 export default Admin;

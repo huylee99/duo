@@ -7,6 +7,9 @@ import { Session } from "next-auth";
 import { type ReactElement, type ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -20,24 +23,28 @@ type AppPropsWithLayout = AppProps & {
 const App = ({ Component, pageProps, session }: AppPropsWithLayout) => {
   const getLayout = Component.getLayout ?? (page => page);
 
-  return getLayout(
+  return (
     <>
-      <SessionProvider session={session} refetchOnWindowFocus={false}>
-        <ThemeProvider>
-          <Component {...pageProps} />
-        </ThemeProvider>
-      </SessionProvider>
-      <Toaster
-        position="top-center"
-        reverseOrder={false}
-        toastOptions={{
-          className: "font-medium text-sm shadow-md",
-          duration: 4000,
-          style: {
-            color: "black",
-          },
-        }}
-      />
+      <main className={inter.className}>
+        <SessionProvider session={pageProps.session || session} refetchOnWindowFocus={false}>
+          {getLayout(
+            <ThemeProvider>
+              <Component {...pageProps} />
+              <Toaster
+                position="top-center"
+                reverseOrder={false}
+                toastOptions={{
+                  className: "font-medium text-sm shadow-md",
+                  duration: 4000,
+                  style: {
+                    color: "black",
+                  },
+                }}
+              />
+            </ThemeProvider>
+          )}
+        </SessionProvider>
+      </main>
     </>
   );
 };
