@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import { type NextPage } from "next";
 import { api } from "~/server/utils/api";
 import { SessionProvider } from "next-auth/react";
-import { Session } from "next-auth";
+import { type Session } from "next-auth";
 import { type ReactElement, type ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";

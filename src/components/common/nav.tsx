@@ -33,11 +33,19 @@ const Nav = () => {
           </ul>
         </nav>
         <div className="flex-1 flex justify-end items-center space-x-4">
-          <div className="w-8 h-8 hover:bg-muted rounded-full flex justify-center items-center transition-[background-color] cursor-pointer">
-            <Bell className="w-5 h-5" />
-          </div>
-          {session.status === "authenticated" && <UserMenu />}
-          {session.status === "unauthenticated" && <Button>Đăng nhập</Button>}
+          {session.status === "authenticated" && (
+            <>
+              <div className="w-8 h-8 hover:bg-muted rounded-full flex justify-center items-center transition-[background-color] cursor-pointer">
+                <Bell className="w-5 h-5" />
+              </div>
+              <UserMenu />
+            </>
+          )}
+          {session.status === "unauthenticated" && (
+            <Button size={"sm"} asChild>
+              <Link href={"/login"}>Đăng nhập</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
