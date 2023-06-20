@@ -24,7 +24,7 @@ declare module "next-auth" {
 
   interface Session extends DefaultSession {
     user: {
-      role?: ROLE;
+      role: ROLE;
       id?: string;
       isBanned?: boolean;
     } & DefaultSession["user"];
@@ -124,11 +124,6 @@ export const authOptions: NextAuthOptions = {
         path: "/",
         secure: VERCEL_DEPLOYMENT,
       },
-    },
-  },
-  logger: {
-    error(code, metadata) {
-      console.error(code, metadata);
     },
   },
   debug: env.NODE_ENV === "development",

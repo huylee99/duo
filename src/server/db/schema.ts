@@ -28,7 +28,7 @@ export const account = mysqlTable(
   "accounts",
   {
     id: varchar("id", { length: 36 }).primaryKey().notNull(),
-    userId: varchar("userId", { length: 191 }).notNull(),
+    userId: varchar("userId", { length: 36 }).notNull(),
     type: varchar("type", { length: 191 }).notNull(),
     provider: varchar("provider", { length: 191 }).notNull(),
     providerAccountId: varchar("providerAccountId", { length: 191 }).notNull(),

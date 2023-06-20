@@ -1,10 +1,10 @@
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { signIn } from "next-auth/react";
-import { useState } from "react";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { emailValidator, type Email } from "~/shared/validators/email-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
