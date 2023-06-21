@@ -5,13 +5,18 @@ export const user = mysqlTable(
   "users",
   {
     id: varchar("id", { length: 36 }).notNull(),
-    name: varchar("name", { length: 191 }),
+    username: varchar("username", { length: 48 }).notNull(),
+    name: varchar("name", { length: 32 }),
     isBanned: boolean("is_banned").default(false).notNull(),
     role: varchar("role", { enum: ["admin", "user", "partner"], length: 8 })
       .notNull()
       .default("user"),
     email: varchar("email", { length: 191 }).notNull(),
     emailVerified: timestamp("emailVerified"),
+    facebook: varchar("facebook", { length: 191 }),
+    instagram: varchar("instagram", { length: 191 }),
+    discord: varchar("discord", { length: 191 }),
+    banner: varchar("banner", { length: 191 }),
     image: varchar("image", { length: 191 }),
   },
   table => {

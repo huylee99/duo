@@ -8,12 +8,15 @@ import * as schema from "../server/db/schema";
 export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter {
   return {
     createUser: async data => {
+      const username = data.email.split("@")[0];
+
       await db.insert(user).values({
         email: data.email,
         emailVerified: data.emailVerified,
         image: data.image,
         name: data.name,
         id: randomUUID(),
+        username,
       });
       const rows = await db.select().from(user).where(eq(user.email, data.email)).limit(1);
 
