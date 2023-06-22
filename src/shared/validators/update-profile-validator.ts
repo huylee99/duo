@@ -5,22 +5,49 @@ const instagramRegex = /(?:https?:\/\/)?(?:www\.)?(m\.instagram|instagram)\.(com
 const discordRegex = /(?:https?:\/\/)?(?:www\.)?(discord)\.(gg)\/(?:(?:\w\.)*#!\/)?(?:[\w\-\.]*\/)*([\w\-\.]*)/;
 
 const updateProfileValidatorSchema = z.object({
-  name: z.string().min(1).max(32),
-  shortBio: z.string().min(1).max(64),
+  name: z.string().trim().max(32).optional(),
+  shortBio: z.string().max(64).optional(),
 });
 
 const updateUsernameValidatorSchema = z.object({
   username: z
     .string()
-    .min(1)
+    .min(1, "Username không được để trống.")
     .max(32)
-    .regex(/(^[a-zA-Z0-9]*$)/),
+    .regex(/(^[a-zA-Z0-9]*$)/, "Username không được chứa khoảng trống, kí tự đặc biệt."),
 });
 
 const updateSocialsValidatorSchema = z.object({
-  facebook: z.string().regex(facebookRegex).optional(),
-  instagram: z.string().regex(instagramRegex).optional(),
-  discord: z.string().regex(discordRegex).optional(),
+  facebook: z
+    .string()
+    .optional()
+    .refine(value => {
+      if (!!value) {
+        return facebookRegex.test(value);
+      }
+
+      return true;
+    }),
+  instagram: z
+    .string()
+    .optional()
+    .refine(value => {
+      if (!!value) {
+        return instagramRegex.test(value);
+      }
+
+      return true;
+    }),
+  discord: z
+    .string()
+    .optional()
+    .refine(value => {
+      if (!!value) {
+        return discordRegex.test(value);
+      }
+
+      return true;
+    }),
 });
 
 export type UpdateUsernameFields = z.infer<typeof updateUsernameValidatorSchema>;

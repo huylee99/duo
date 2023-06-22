@@ -1,15 +1,23 @@
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
-import { useForm } from "react-hook-form";
-import { updateUsernameValidatorSchema, type UpdateUsernameFields } from "~/shared/validators/update-profile-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { updateUsernameValidatorSchema, type UpdateUsernameFields } from "~/shared/validators/update-profile-validator";
+import { cn } from "~/lib/utils";
 
 const UpdateUsername = () => {
-  const { register, handleSubmit, formState } = useForm<UpdateUsernameFields>({ resolver: zodResolver(updateUsernameValidatorSchema) });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+  } = useForm<UpdateUsernameFields>({ resolver: zodResolver(updateUsernameValidatorSchema), defaultValues: { username: "" } });
 
   const onSubmit = handleSubmit(async data => {
     console.log(data);
   });
+
+  const error = errors.username?.message;
+  const isSafeToSubmit = !error && !isDirty;
 
   return (
     <section className="space-y-4">
@@ -17,7 +25,7 @@ const UpdateUsername = () => {
         <h4 className="font-semibold text-primary text-lg">Username</h4>
         <p className="text-sm text-muted-foreground">Thay đổi username sẽ thay đổi đường dẫn vào trang cá nhân của bạn</p>
       </div>
-      <form>
+      <form onSubmit={onSubmit}>
         <div className="border border-border rounded-tr-md rounded-tl-md px-6 py-5">
           <div className="space-y-2">
             <Label className="text-base" htmlFor="username">
@@ -28,14 +36,14 @@ const UpdateUsername = () => {
                 <span className="text-muted-foreground text-sm">chưa biết.gg/</span>
               </div>
               <div className="flex-1 flex justify-center">
-                <input type="text" id="username" className="w-full rounded-tr-md rounded-br-md border border-border border-l-transparent px-3 text-sm bg-transparent" autoComplete="off" aria-autocomplete="none" />
+                <input type="text" {...register("username")} className="w-full rounded-tr-md rounded-br-md border border-border border-l-transparent px-3 text-sm bg-transparent" autoComplete="off" aria-autocomplete="none" />
               </div>
             </div>
           </div>
         </div>
-        <footer className="border flex justify-between items-center border-border border-t-transparent rounded-br-md rounded-bl-md px-6 py-2 bg-muted">
-          <p className="text-sm text-muted-foreground">Username chỉ được phép tối đa 32 kí tự.</p>
-          <Button size="sm" className="h-8">
+        <footer className="border flex justify-between items-center border-border border-t-transparent rounded-br-md rounded-bl-md px-6 py-2 bg-muted gap-10">
+          <p className={cn("text-sm", error ? "text-destructive" : "text-muted-foreground")}>{!error ? "Username chỉ được phép tối đa 32 kí tự." : error}</p>
+          <Button size="sm" className="h-8" disabled={isSafeToSubmit}>
             Lưu
           </Button>
         </footer>
