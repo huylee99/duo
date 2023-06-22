@@ -26,7 +26,7 @@ const UpdateProfile = () => {
                 <Label className="text-base" htmlFor="shortBio">
                   Mô tả ngắn
                 </Label>
-                <Input id="shortBio" type="text" className="focus-visible:border-muted" placeholder="Ví dụ: Xinh đẹp, ngoan hiền, dễ thương, chơi game giỏi 💕" />
+                <Input id="shortBio" type="text" className="focus-visible:border-muted" placeholder={`Ví dụ: "Xinh đẹp, ngoan hiền, dễ thương, chơi game giỏi 💕"`} />
                 {/* {errors.newPassword && <span className="text-xs text-red-500">{errors.newPassword.message}</span>} */}
               </div>
             </div>

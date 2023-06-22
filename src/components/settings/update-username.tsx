@@ -1,7 +1,16 @@
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
+import { useForm } from "react-hook-form";
+import { updateUsernameValidatorSchema, type UpdateUsernameFields } from "~/shared/validators/update-profile-validator";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const UpdateUsername = () => {
+  const { register, handleSubmit, formState } = useForm<UpdateUsernameFields>({ resolver: zodResolver(updateUsernameValidatorSchema) });
+
+  const onSubmit = handleSubmit(async data => {
+    console.log(data);
+  });
+
   return (
     <section className="space-y-4">
       <div className="space-y-1">

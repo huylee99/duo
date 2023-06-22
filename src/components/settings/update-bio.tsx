@@ -124,7 +124,7 @@ const PreviewPost: React.FC<{ editor: Editor }> = ({ editor }) => {
           <DialogHeader>
             <DialogTitle>Xem trước bài viết</DialogTitle>
           </DialogHeader>
-          <div className="prose">
+          <div className="prose text-primary">
             <div dangerouslySetInnerHTML={{ __html: content }} />
           </div>
         </DialogContent>
@@ -143,7 +143,7 @@ const Bio: React.FC<BioEditorProps> = ({ content }) => {
   const editor = useEditor({
     editorProps: {
       attributes: {
-        class: "p-4 py-2 prose focus:outline-none outline-none max-w-full border-none prose-p:mt-[1em] prose-p:mb-[1em] h-96 overflow-auto",
+        class: "p-4 py-2 prose text-primary focus:outline-none outline-none max-w-full border-none prose-p:mt-[1em] prose-p:mb-[1em] h-96 overflow-auto",
       },
     },
     extensions: [

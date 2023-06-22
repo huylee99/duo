@@ -11,6 +11,7 @@ import UpdateUsername from "~/components/settings/update-username";
 import UpdateBanner from "~/components/settings/update-banner";
 import UpdateProfile from "~/components/settings/update-profile";
 import UpdateBio from "~/components/settings/update-bio";
+import UpdateSocials from "~/components/settings/update-socials";
 
 const AUTHORIZED_ROLES = authorizedRoles(["partner", "user"]);
 
@@ -53,6 +54,7 @@ const Profile: NextPageWithLayout<InferGetServerSidePropsType<typeof getServerSi
         <UpdateUsername />
         <UpdateProfile />
         <UpdateBio content="" />
+        <UpdateSocials />
       </div>
     </>
   );
