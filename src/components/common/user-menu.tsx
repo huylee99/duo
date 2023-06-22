@@ -20,7 +20,12 @@ function UserMenu() {
             <User className="mr-2 h-4 w-4" />
             <span>Trang cá nhân</span>
           </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Cài đặt</span>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut({ redirect: true })}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Đăng xuất</span>

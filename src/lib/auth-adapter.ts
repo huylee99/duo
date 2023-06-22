@@ -2,18 +2,21 @@ import type { Adapter } from "next-auth/adapters";
 import type { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless";
 import { user, account, session, verificationToken } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
-import { randomUUID } from "crypto";
 import * as schema from "../server/db/schema";
+import { createId } from "@paralleldrive/cuid2";
 
 export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter {
   return {
     createUser: async data => {
+      const username = data.email.split("@")[0];
+
       await db.insert(user).values({
         email: data.email,
         emailVerified: data.emailVerified,
         image: data.image,
         name: data.name,
-        id: randomUUID(),
+        id: createId(),
+        username,
       });
       const rows = await db.select().from(user).where(eq(user.email, data.email)).limit(1);
 
@@ -59,7 +62,7 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
       await db.delete(user).where(eq(user.id, id));
     },
     linkAccount: async data => {
-      await db.insert(account).values({ ...data, id: randomUUID() });
+      await db.insert(account).values({ ...data, id: createId() });
     },
     unlinkAccount: async ({ provider, providerAccountId }) => {
       await db.delete(account).where(and(eq(account.provider, provider), eq(account.providerAccountId, providerAccountId)));
@@ -73,7 +76,7 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
       return null;
     },
     createSession: async data => {
-      await db.insert(session).values({ ...data, id: randomUUID() });
+      await db.insert(session).values({ ...data, id: createId() });
       const insertedSession = await db.select().from(session).where(eq(session.sessionToken, data.sessionToken)).limit(1);
 
       return insertedSession[0];

@@ -81,3 +81,9 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+iframe {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 16 / 9;
+}

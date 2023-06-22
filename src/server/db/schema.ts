@@ -4,14 +4,19 @@ import { relations, InferModel } from "drizzle-orm";
 export const user = mysqlTable(
   "users",
   {
-    id: varchar("id", { length: 36 }).notNull(),
-    name: varchar("name", { length: 191 }),
+    id: varchar("id", { length: 24 }).notNull(),
+    username: varchar("username", { length: 48 }).notNull(),
+    name: varchar("name", { length: 32 }),
     isBanned: boolean("is_banned").default(false).notNull(),
     role: varchar("role", { enum: ["admin", "user", "partner"], length: 8 })
       .notNull()
       .default("user"),
     email: varchar("email", { length: 191 }).notNull(),
     emailVerified: timestamp("emailVerified"),
+    facebook: varchar("facebook", { length: 191 }),
+    instagram: varchar("instagram", { length: 191 }),
+    discord: varchar("discord", { length: 191 }),
+    banner: varchar("banner", { length: 191 }),
     image: varchar("image", { length: 191 }),
   },
   table => {
@@ -27,7 +32,7 @@ export type ROLE = InferModel<typeof user, "select">["role"];
 export const account = mysqlTable(
   "accounts",
   {
-    id: varchar("id", { length: 36 }).primaryKey().notNull(),
+    id: varchar("id", { length: 24 }).primaryKey().notNull(),
     userId: varchar("userId", { length: 36 }).notNull(),
     type: varchar("type", { length: 191 }).notNull(),
     provider: varchar("provider", { length: 191 }).notNull(),
@@ -51,7 +56,7 @@ export const account = mysqlTable(
 export const session = mysqlTable(
   "sessions",
   {
-    id: varchar("id", { length: 36 }).primaryKey().notNull(),
+    id: varchar("id", { length: 24 }).primaryKey().notNull(),
     sessionToken: varchar("sessionToken", { length: 191 }).notNull(),
     userId: varchar("userId", { length: 191 }).notNull(),
     expires: date("expires").notNull(),
