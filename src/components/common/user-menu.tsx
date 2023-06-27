@@ -8,10 +8,12 @@ import { genImageUrl } from "~/utils/image-url";
 function UserMenu() {
   const session = useSession();
 
+  const avatar = session.data?.user.image!;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Image src={genImageUrl(session.data?.user.image!)} alt="avatar" width={30} height={30} className="object-cover rounded-full overflow-hidden w-[30px] h-[30px] cursor-pointer" />
+        <Image src={genImageUrl(avatar)} alt="avatar" width={32} height={32} className="object-cover rounded-full overflow-hidden w-8 h-8 aspect-square cursor-pointer" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>{session.data?.user.name}</DropdownMenuLabel>

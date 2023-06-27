@@ -29,7 +29,6 @@ const UpdateAvatar: React.FC<{ avatar: string }> = props => {
     onError() {
       toast.error("Đã xảy ra lỗi, vui lòng thử lại");
     },
-    isMultiple: false,
     onUploadCompleted(result) {
       mutate({ image: result[0].fileKey });
       t.user.me.setData(undefined, oldData => {

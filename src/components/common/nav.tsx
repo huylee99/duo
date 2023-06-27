@@ -65,6 +65,12 @@ const Nav = () => {
         </nav>
         <div className="flex-1 flex justify-end items-center space-x-4">
           <ThemeToggle />
+          {session.status === "loading" && (
+            <>
+              <div className="w-8 h-8 bg-muted rounded-full animate-pulse"></div>
+              <div className="w-8 h-8 bg-muted rounded-full animate-pulse"></div>
+            </>
+          )}
           {session.status === "authenticated" && (
             <>
               <div className="w-8 h-8 hover:bg-muted rounded-full flex justify-center items-center transition-[background-color] cursor-pointer">

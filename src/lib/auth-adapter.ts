@@ -13,7 +13,7 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
       await db.insert(user).values({
         email: data.email,
         emailVerified: data.emailVerified,
-        image: data.image,
+        image: data.image ? data.image : `https://avatars.dicebear.com/api/micah/${data.email}.svg`,
         name: data.name,
         id: createId(),
         username,

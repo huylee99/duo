@@ -18,7 +18,7 @@ type UploadArgs = {
 };
 
 const useUpload = (opts: UploadArgs) => {
-  const { allowedFileTypes, maxFileSize, onError, onUploadCompleted, onSettled, isMultiple } = opts;
+  const { allowedFileTypes, maxFileSize, onError, onUploadCompleted, onSettled, isMultiple = false } = opts;
   const { mutateAsync } = api.upload.createPresignedURLs.useMutation();
 
   const uploadFiles = async (files: File[]) => {
