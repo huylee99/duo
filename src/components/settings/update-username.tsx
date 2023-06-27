@@ -4,16 +4,42 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { updateUsernameValidatorSchema, type UpdateUsernameFields } from "~/shared/validators/update-profile-validator";
 import { cn } from "~/lib/utils";
+import { api } from "~/server/utils/api";
+import { toast } from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
-const UpdateUsername = () => {
+type UpdateUsernameProps = {
+  username: string | null;
+};
+
+const UpdateUsername: React.FC<UpdateUsernameProps> = ({ username }) => {
   const {
     register,
     handleSubmit,
     formState: { errors, isDirty },
-  } = useForm<UpdateUsernameFields>({ resolver: zodResolver(updateUsernameValidatorSchema), defaultValues: { username: "" } });
+    reset,
+  } = useForm<UpdateUsernameFields>({ resolver: zodResolver(updateUsernameValidatorSchema), defaultValues: { username: username || "" } });
+  const t = api.useContext();
+  const { mutate, isLoading } = api.user.updateUsername.useMutation({
+    onSuccess: username => {
+      t.user.me.setData(undefined, oldData => {
+        if (!oldData) return;
 
+        return {
+          ...oldData,
+          username: username,
+        };
+      });
+      reset({ username: username });
+      toast.success("Cập nhật username thành công");
+    },
+    onError: error => {
+      toast.error(error.message);
+    },
+  });
   const onSubmit = handleSubmit(async data => {
-    console.log(data);
+    if (isLoading) return;
+    mutate({ username: data.username });
   });
 
   const error = errors.username?.message;
@@ -36,14 +62,15 @@ const UpdateUsername = () => {
                 <span className="text-muted-foreground text-sm">chưa biết.gg/</span>
               </div>
               <div className="flex-1 flex justify-center">
-                <input type="text" {...register("username")} className="w-full rounded-tr-md rounded-br-md border border-border border-l-transparent px-3 text-sm bg-transparent" autoComplete="off" aria-autocomplete="none" />
+                <input type="text" {...register("username")} className="w-full rounded-tr-md rounded-br-md border border-border border-l-transparent px-3 text-sm bg-transparent" autoComplete="off" aria-autocomplete="none" disabled={isLoading} />
               </div>
             </div>
           </div>
         </div>
         <footer className="border flex justify-between items-center border-border border-t-transparent rounded-br-md rounded-bl-md px-6 py-2 bg-muted gap-10">
           <p className={cn("text-sm", error ? "text-destructive" : "text-muted-foreground")}>{!error ? "Username chỉ được phép tối đa 32 kí tự." : error}</p>
-          <Button size="sm" className="h-8" disabled={isSafeToSubmit}>
+          <Button size="sm" className="h-8" disabled={isSafeToSubmit || isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Lưu
           </Button>
         </footer>

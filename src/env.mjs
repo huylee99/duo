@@ -20,7 +20,9 @@ export const env = createEnv({
     S3_BUCKET_ACCESS_KEY: z.string().min(1),
     S3_BUCKET_SECRET_KEY: z.string().min(1),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_CLOUD_ORIGIN: z.string().min(1),
+  },
   runtimeEnv: {
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     DATABASE_HOST: process.env.DATABASE_HOST,
@@ -38,5 +40,6 @@ export const env = createEnv({
     S3_BUCKET_REGION: process.env.S3_BUCKET_REGION,
     S3_BUCKET_ACCESS_KEY: process.env.S3_BUCKET_ACCESS_KEY,
     S3_BUCKET_SECRET_KEY: process.env.S3_BUCKET_SECRET_KEY,
+    NEXT_PUBLIC_CLOUD_ORIGIN: process.env.NEXT_PUBLIC_CLOUD_ORIGIN,
   },
 });

@@ -1,8 +1,9 @@
-import { Cloud, CreditCard, Github, Palette, Laptop, Keyboard, LifeBuoy, LogOut, Mail, MessageSquare, Plus, PlusCircle, Settings, User, UserPlus, Users, Moon, Sun } from "lucide-react";
+import { LogOut, Settings, User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
+import { genImageUrl } from "~/utils/image-url";
 
 function UserMenu() {
   const session = useSession();
@@ -10,7 +11,7 @@ function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Image src={session.data?.user.image || ""} alt="avatar" width={30} height={30} className="object-cover rounded-full overflow-hidden w-[30px] h-[30px] cursor-pointer" />
+        <Image src={genImageUrl(session.data?.user.image!)} alt="avatar" width={30} height={30} className="object-cover rounded-full overflow-hidden w-[30px] h-[30px] cursor-pointer" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>{session.data?.user.name}</DropdownMenuLabel>

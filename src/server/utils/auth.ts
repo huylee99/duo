@@ -25,19 +25,9 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       role: ROLE;
-      id?: string;
+      id: string;
       isBanned?: boolean;
     } & DefaultSession["user"];
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT extends DefaultJWT {
-    user?: {
-      role?: ROLE;
-      is_banned?: boolean;
-      id?: string;
-    };
   }
 }
 

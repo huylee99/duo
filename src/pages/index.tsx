@@ -4,6 +4,7 @@ import CommonLayout from "~/layout/common-layout";
 import { useUpload } from "~/hooks/use-upload";
 import { useRef } from "react";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
 
 const Home: NextPageWithLayout = () => {
   const { data } = useSession();
@@ -41,6 +42,7 @@ const Home: NextPageWithLayout = () => {
           console.log(result);
         }}
       />
+      {/* <Image src={"https://cloud.deuxlabs.dev/pexels-christian-heitz-842711.jpg"} alt="test" fill priority unoptimized /> */}
     </div>
   );
 };

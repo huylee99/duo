@@ -13,6 +13,8 @@ export const user = mysqlTable(
       .default("user"),
     email: varchar("email", { length: 191 }).notNull(),
     emailVerified: timestamp("emailVerified"),
+    shortBio: varchar("shortBio", { length: 64 }),
+    longBio: text("longBio"),
     facebook: varchar("facebook", { length: 191 }),
     instagram: varchar("instagram", { length: 191 }),
     discord: varchar("discord", { length: 191 }),

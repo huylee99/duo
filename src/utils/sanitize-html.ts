@@ -7,6 +7,7 @@ const sanitizeHtml = (content: string) => {
     allowedAttributes: {
       iframe: ["src", "allowfullscreen", "autoplay", "endtime", "ivloadpolicy", "origin", "loop", "playlist", "start"],
       div: ["data-youtube-video"],
+      a: ["href", "target", "rel"],
     },
   });
 };

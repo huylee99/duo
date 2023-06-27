@@ -9,6 +9,14 @@ const updateProfileValidatorSchema = z.object({
   shortBio: z.string().max(64).optional(),
 });
 
+const updateSingleImageValidatorSchema = z.object({
+  image: z.string().min(1),
+});
+
+const updateLongBioValidatorSchema = z.object({
+  longBio: z.string().max(2000).optional(),
+});
+
 const updateUsernameValidatorSchema = z.object({
   username: z
     .string()
@@ -54,4 +62,4 @@ export type UpdateUsernameFields = z.infer<typeof updateUsernameValidatorSchema>
 export type UpdateProfileFields = z.infer<typeof updateProfileValidatorSchema>;
 export type UpdateSocialsFields = z.infer<typeof updateSocialsValidatorSchema>;
 
-export { updateProfileValidatorSchema, updateSocialsValidatorSchema, updateUsernameValidatorSchema };
+export { updateProfileValidatorSchema, updateSocialsValidatorSchema, updateUsernameValidatorSchema, updateSingleImageValidatorSchema, updateLongBioValidatorSchema };
