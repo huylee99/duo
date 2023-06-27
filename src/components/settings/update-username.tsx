@@ -30,7 +30,7 @@ const UpdateUsername: React.FC<UpdateUsernameProps> = ({ username }) => {
           username: username,
         };
       });
-      reset({ username: username });
+      reset({ username });
       toast.success("Cập nhật username thành công");
     },
     onError: error => {

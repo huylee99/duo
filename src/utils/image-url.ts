@@ -1,7 +1,7 @@
 import { env } from "~/env.mjs";
 
 const genImageUrl = (key: string) => {
-  if (!key || key.startsWith("https://")) {
+  if (key.startsWith("https://")) {
     return key;
   }
 
