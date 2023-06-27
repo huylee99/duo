@@ -15,6 +15,10 @@ export const env = createEnv({
     NEXTAUTH_SECRET: z.string().min(1),
     NODE_ENV: z.enum(["development", "production", "test"]),
     RESEND_KEY: z.string().min(1),
+    S3_BUCKET_NAME: z.string().min(1),
+    S3_BUCKET_REGION: z.string().min(1),
+    S3_BUCKET_ACCESS_KEY: z.string().min(1),
+    S3_BUCKET_SECRET_KEY: z.string().min(1),
   },
   client: {},
   runtimeEnv: {
@@ -30,5 +34,9 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     DISCORD_AUTH_URL: process.env.DISCORD_AUTH_URL,
     RESEND_KEY: process.env.RESEND_KEY,
+    S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
+    S3_BUCKET_REGION: process.env.S3_BUCKET_REGION,
+    S3_BUCKET_ACCESS_KEY: process.env.S3_BUCKET_ACCESS_KEY,
+    S3_BUCKET_SECRET_KEY: process.env.S3_BUCKET_SECRET_KEY,
   },
 });
