@@ -1,19 +1,24 @@
 // inspired by UploadThing https://github.com/pingdotgg/uploadthing
-
+import { env } from "~/env.mjs";
 import { api } from "~/server/utils/api";
-import { toast } from "react-hot-toast";
 import { fileValidator } from "~/shared/validators/upload-files-validators";
+
+type ResultType = {
+  fileKey: string;
+  fileUrl: string;
+};
 
 type UploadArgs = {
   allowedFileTypes: string[];
   maxFileSize: number;
-  onUploadCompleted?: (result: { fileKey: string; fileUrl: string }[]) => void;
   onError?: (error?: unknown) => void;
   onSettled?: () => void;
+  isMultiple?: boolean;
+  onUploadCompleted?: (result: ResultType[]) => void;
 };
 
 const useUpload = (opts: UploadArgs) => {
-  const { allowedFileTypes, maxFileSize, onError, onUploadCompleted, onSettled } = opts;
+  const { allowedFileTypes, maxFileSize, onError, onUploadCompleted, onSettled, isMultiple } = opts;
   const { mutateAsync } = api.upload.createPresignedURLs.useMutation();
 
   const uploadFiles = async (files: File[]) => {
@@ -22,6 +27,10 @@ const useUpload = (opts: UploadArgs) => {
 
       if (!validationResult.success) {
         throw new Error(validationResult.error.message);
+      }
+
+      if (!isMultiple && files.length > 1) {
+        throw new Error("Chỉ được phép upload 1 file");
       }
 
       const uploadFiles = files.map(file => ({ fileName: file.name, fileType: file.type }));
@@ -57,7 +66,7 @@ const useUpload = (opts: UploadArgs) => {
 
         const fileKey = fields["key"];
 
-        const fileUrl = `https://d2w76mn1em43bl.cloudfront.net/${fileKey}`;
+        const fileUrl = `${env.NEXT_PUBLIC_CLOUD_ORIGIN}/${fileKey}`;
 
         return { fileKey, fileUrl };
       });
@@ -67,8 +76,6 @@ const useUpload = (opts: UploadArgs) => {
       if (onUploadCompleted) {
         onUploadCompleted(result);
       }
-
-      return result;
     } catch (error) {
       process.env.NODE_ENV === "development" && console.error(error);
 

@@ -12,6 +12,7 @@ import UpdateBanner from "~/components/settings/update-banner";
 import UpdateProfile from "~/components/settings/update-profile";
 import UpdateBio from "~/components/settings/update-bio";
 import UpdateSocials from "~/components/settings/update-socials";
+import { api } from "~/server/utils/api";
 
 const AUTHORIZED_ROLES = authorizedRoles(["partner", "user"]);
 
@@ -44,18 +45,22 @@ export const getServerSideProps: GetServerSideProps<{ session: Session }> = asyn
 };
 
 const Profile: NextPageWithLayout<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ session }) => {
+  const { isLoading, data } = api.user.me.useQuery();
+
   return (
     <>
       <NextSeoWrapper title="Thông tin cá nhân" />
-      <div className="w-full lg:max-w-3xl space-y-8">
-        <h2 className="text-2xl font-bold text-primary">Thông tin cá nhân</h2>
-        <UpdateAvatar avatar={session.user.image!} />
-        <UpdateBanner />
-        <UpdateUsername />
-        <UpdateProfile />
-        <UpdateBio content="" />
-        <UpdateSocials />
-      </div>
+      {data && (
+        <div className="w-full lg:max-w-3xl space-y-8">
+          <h2 className="text-2xl font-bold text-primary">Thông tin cá nhân</h2>
+          <UpdateAvatar avatar={data.image!} />
+          <UpdateBanner banner={data.banner} />
+          <UpdateUsername username={data.username} />
+          <UpdateProfile name={data.name} shortBio={data.shortBio} />
+          <UpdateBio content={data.longBio} />
+          <UpdateSocials discord={data.discord} facebook={data.facebook} instagram={data.instagram} />
+        </div>
+      )}
     </>
   );
 };

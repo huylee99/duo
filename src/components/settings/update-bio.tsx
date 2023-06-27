@@ -7,11 +7,13 @@ import { Link } from "@tiptap/extension-link";
 import ListItem from "@tiptap/extension-list-item";
 import { Color } from "@tiptap/extension-color";
 import { Youtube } from "@tiptap/extension-youtube";
-import { Unlink, Pilcrow, Quote, LinkIcon, Strikethrough, Bold, ListOrdered, List, Italic, YoutubeIcon, Heading1, Heading2, Heading3, Eye } from "lucide-react";
+import { Unlink, Pilcrow, Quote, LinkIcon, Strikethrough, Bold, ListOrdered, List, Italic, YoutubeIcon, Heading1, Heading2, Heading3, Eye, Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { sanitizeHtml } from "~/utils/sanitize-html";
+import { api } from "~/server/utils/api";
+import { toast } from "react-hot-toast";
 
 const EditorMenu: React.FC<{ editor: Editor }> = ({ editor }) => {
   const setLink = useCallback(() => {
@@ -120,11 +122,11 @@ const PreviewPost: React.FC<{ editor: Editor }> = ({ editor }) => {
             Xem trước
           </Button>
         </DialogTrigger>
-        <DialogContent className="">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Xem trước bài viết</DialogTitle>
           </DialogHeader>
-          <div className="prose text-primary">
+          <div className="prose text-primary overflow-auto max-h-[600px]">
             <div dangerouslySetInnerHTML={{ __html: content }} />
           </div>
         </DialogContent>
@@ -134,16 +136,38 @@ const PreviewPost: React.FC<{ editor: Editor }> = ({ editor }) => {
 };
 
 type BioEditorProps = {
-  content: string;
+  content: string | null;
 };
 
 const Bio: React.FC<BioEditorProps> = ({ content }) => {
-  const [bio, setBio] = useState("");
+  const [bio, setBio] = useState(content);
+  const t = api.useContext();
+  const { isLoading, mutate } = api.user.updateLongBio.useMutation({
+    onSuccess: data => {
+      t.user.me.setData(undefined, oldState => {
+        if (!oldState) return oldState;
+        return {
+          ...oldState,
+          ...data,
+        };
+      });
+      toast.success("Cập nhật thành công.");
+    },
+    onError: _ => {
+      toast.error("Đã xảy ra lỗi, vui lòng thử lại.");
+    },
+  });
+
+  const handleSubmit = () => {
+    if (isLoading) return;
+
+    mutate({ longBio: sanitizeHtml(bio || "") });
+  };
 
   const editor = useEditor({
     editorProps: {
       attributes: {
-        class: "p-4 py-2 prose text-primary focus:outline-none outline-none max-w-full border-none prose-p:mt-[1em] prose-p:mb-[1em] h-96 overflow-auto",
+        class: "p-4 py-2 prose text-primary focus:outline-none outline-none max-w-full border-none prose-p:mt-[1em] prose-p:mb-[1em] h-96 overflow-auto overscroll-contain",
       },
     },
     extensions: [
@@ -166,11 +190,13 @@ const Bio: React.FC<BioEditorProps> = ({ content }) => {
       }),
       Youtube,
     ],
-    content: content,
+    content: bio,
     onUpdate: ({ editor }) => {
       setBio(editor.getHTML());
     },
   });
+
+  const isSafeToSubmit = bio !== content;
 
   return (
     <section className="space-y-4">
@@ -191,7 +217,8 @@ const Bio: React.FC<BioEditorProps> = ({ content }) => {
           <p className="text-sm text-muted-foreground">Bài giới thiệu không quá 2000 kí tự.</p>
           <div className="flex items-center space-x-2 relative">
             {editor && <PreviewPost editor={editor} />}
-            <Button className="h-8" size="sm">
+            <Button className="h-8" size="sm" disabled={isLoading || !isSafeToSubmit} onClick={handleSubmit}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Lưu
             </Button>
           </div>
