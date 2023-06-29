@@ -72,4 +72,8 @@
   * {
     @apply border-border;
   }
+
+  body {
+    @apply bg-secondary;
+  }
 }
