@@ -78,11 +78,11 @@ const Profile: NextPageWithLayout = () => {
         <div className="bg-primary-foreground rounded-lg p-5 grid grid-cols-3 divide-x-2">
           <div className="col-span-1 text-center">
             <h2 className="font-extrabold text-pink-600 text-5xl mb-1">120</h2>
-            <p className="text-primary text-xl font-semibold">Số giờ được thuê</p>
+            <p className="text-primary text-xl font-semibold">Giờ được thuê</p>
           </div>
           <div className="col-span-1 text-center">
             <h2 className="font-extrabold text-pink-600 text-5xl mb-1">12k</h2>
-            <p className="text-primary text-xl font-semibold">Số người theo dõi</p>
+            <p className="text-primary text-xl font-semibold">Người theo dõi</p>
           </div>
           <div className="col-span-1 text-center">
             <h2 className="font-extrabold text-pink-600 text-5xl mb-1">4.7</h2>
@@ -110,7 +110,7 @@ const Profile: NextPageWithLayout = () => {
           <div className="col-span-2 space-y-4">
             <div className="bg-primary-foreground rounded-lg p-5">
               <h3 className="font-semibold text-xl mb-10">Giới thiệu</h3>
-              <div className="prose leading-relaxed">
+              <div className="prose text-primary leading-relaxed">
                 <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Minima ipsum accusantium vel.</p>
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus ducimus, ipsam repellendus error optio rem at quos nemo nisi atque dolor explicabo debitis perspiciatis eum quaerat neque magni, itaque quis. Velit doloribus numquam iusto cupiditate est quia temporibus dolore veritatis asperiores dicta optio necessitatibus perspiciatis laudantium voluptate voluptatum, ipsa rerum totam praesentium ipsum perferendis. Unde qui similique facilis, placeat cum laudantium pariatur nihil vitae, eaque labore dolores expedita dolorum!</p>
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores quibusdam laborum sequi corrupti aut aliquid, sint error optio! A, corrupti vel nihil natus quaerat magnam unde sequi voluptatem iste minus? Molestias, quam sit.</p>
