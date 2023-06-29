@@ -10,7 +10,7 @@ const LINKS: LINKS = [
     links: [
       {
         id: "1-1",
-        url: "/settings/profile",
+        url: "/settings",
         name: "Thông tin cá nhân",
         icon: () => <User className="mr-2 h-4 w-4" />,
       },

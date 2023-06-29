@@ -5,10 +5,10 @@ import Nav from "~/components/common/nav";
 const CommonLayout: React.FC<PropsWithChildren> = ({ children }) => {
   const session = useSession();
   return (
-    <>
+    <div className="mb-16">
       <Nav />
       {children}
-    </>
+    </div>
   );
 };
 

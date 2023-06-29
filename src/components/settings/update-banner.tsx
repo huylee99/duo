@@ -60,7 +60,7 @@ const UpdateBanner: React.FC<UpdateBannerProps> = ({ banner }) => {
       <div>
         <div className="border border-border rounded-tr-md rounded-tl-md p-6">
           <div className="flex items-center space-x-6">
-            <Image src={banner ? genImageUrl(banner) : "/placeholder.png"} width={320} height={180} alt="ezreal" className="aspect-video object-contain rounded-md w-full h-auto" priority quality={100} />
+            <Image src={banner ? genImageUrl(banner) : "/placeholder.png"} width={320} height={180} alt="ezreal" className="aspect-video object-cover rounded-md w-full h-auto " priority quality={100} />
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">Ấn vào nút bên dưới để đổi ảnh bìa (Hình nên có tỉ lệ 16:9 để hiển thị tốt nhất)</p>
               <Button disabled={isLoading} className="cursor-pointer p-0" size="sm">
