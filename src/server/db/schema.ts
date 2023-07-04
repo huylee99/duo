@@ -29,6 +29,8 @@ export const user = mysqlTable(
   }
 );
 
+export type User = InferModel<typeof user, "select">;
+
 export type ROLE = InferModel<typeof user, "select">["role"];
 
 export const account = mysqlTable(

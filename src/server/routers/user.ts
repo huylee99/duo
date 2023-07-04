@@ -1,8 +1,9 @@
 import { authedProcedure, createTRPCRouter } from "../trpc";
 import { updateSingleImageValidatorSchema, updateUsernameValidatorSchema, updateProfileValidatorSchema, updateSocialsValidatorSchema, updateLongBioValidatorSchema } from "~/shared/validators/update-profile-validator";
 import { user as userSchema } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import * as z from "zod";
 
 const me = authedProcedure.query(async ({ ctx }) => {
   const user = await ctx.db.query.user.findFirst({
@@ -10,6 +11,21 @@ const me = authedProcedure.query(async ({ ctx }) => {
   });
 
   return user;
+});
+
+const getUsers = authedProcedure.input(z.object({ pageSize: z.number(), pageIdx: z.number() })).query(async ({ ctx, input }) => {
+  const { db } = ctx;
+
+  const users = await db.query.user.findMany({
+    limit: input.pageSize,
+    offset: input.pageIdx * input.pageSize,
+  });
+
+  const total = await ctx.db.select({ count: sql<number>`count(*)` }).from(userSchema);
+
+  const pageCount = Math.ceil(total[0].count / input.pageSize);
+
+  return { users, total: total[0].count, pageCount };
 });
 
 const updateAvatar = authedProcedure.input(updateSingleImageValidatorSchema).mutation(async ({ ctx, input }) => {
@@ -90,6 +106,7 @@ const user = createTRPCRouter({
   updateProfile,
   updateSocials,
   updateLongBio,
+  getUsers,
 });
 
 export default user;

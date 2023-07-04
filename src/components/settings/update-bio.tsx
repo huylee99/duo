@@ -167,7 +167,7 @@ const Bio: React.FC<BioEditorProps> = ({ content }) => {
   const editor = useEditor({
     editorProps: {
       attributes: {
-        class: "p-4 py-2 prose text-primary-foreground focus:outline-none outline-none max-w-full border-none prose-p:mt-[1em] prose-p:mb-[1em] h-96 overflow-auto overscroll-contain",
+        class: "p-4 py-2 prose text-foreground focus:outline-none outline-none max-w-full border-none prose-p:mt-[1em] prose-p:mb-[1em] h-96 overflow-auto overscroll-contain",
       },
     },
     extensions: [
