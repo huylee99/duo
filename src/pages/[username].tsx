@@ -13,7 +13,7 @@ const Profile: NextPageWithLayout = () => {
   console.log(tab);
 
   return (
-    <div className="container">
+    <div className="container mb-16">
       <div className="flex flex-col space-y-4">
         <div>
           <div className="relative">
@@ -25,7 +25,7 @@ const Profile: NextPageWithLayout = () => {
             </div>
           </div>
 
-          <div className="bg-primary-foreground px-8 rounded-b-lg">
+          <div className="bg-primary-foreground px-8 rounded-b-lg shadow-sm">
             <div className="relative flex gap-4 border-b border-b-border">
               <div className="relative w-[184px] h-[184px] rounded-full -top-6 border-4 border-primary-foreground flex-shrink-0">
                 <Image src={"/avatar.jpg"} alt="avatar" className="aspect-square object-cover rounded-full" fill quality={90} />
@@ -75,7 +75,7 @@ const Profile: NextPageWithLayout = () => {
           </div>
         </div>
 
-        <div className="bg-primary-foreground rounded-lg p-5 grid grid-cols-3 divide-x-2">
+        <div className="bg-primary-foreground rounded-lg p-5 grid grid-cols-3 divide-x-2 shadow-sm">
           <div className="col-span-1 text-center">
             <h2 className="font-extrabold text-pink-600 text-5xl mb-1">120</h2>
             <p className="text-primary text-xl font-semibold">Giờ được thuê</p>
@@ -90,7 +90,7 @@ const Profile: NextPageWithLayout = () => {
           </div>
         </div>
         <div className="grid grid-cols-3 gap-4 items-start">
-          <div className="col-span-1 bg-primary-foreground rounded-lg p-5">
+          <div className="col-span-1 bg-primary-foreground rounded-lg p-5 shadow-sm">
             <h3 className="font-semibold text-xl mb-5">Dịch vụ</h3>
             <div className="flex flex-col divide-y">
               {[1, 2, 3, 4].map(item => (
@@ -108,7 +108,7 @@ const Profile: NextPageWithLayout = () => {
             </div>
           </div>
           <div className="col-span-2 space-y-4">
-            <div className="bg-primary-foreground rounded-lg p-5">
+            <div className="bg-primary-foreground rounded-lg p-5 shadow-sm">
               <h3 className="font-semibold text-xl mb-10">Giới thiệu</h3>
               <div className="prose text-primary leading-relaxed">
                 <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Minima ipsum accusantium vel.</p>
@@ -117,7 +117,7 @@ const Profile: NextPageWithLayout = () => {
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt, dicta id!</p>
               </div>
             </div>
-            <div className="bg-primary-foreground rounded-lg p-5">
+            <div className="bg-primary-foreground rounded-lg p-5 shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-semibold text-xl">Đánh giá</h3>
 
