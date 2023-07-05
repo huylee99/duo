@@ -106,7 +106,7 @@ const Chart = ({ width, height }: { width: number; height: number }) => {
 
       <CartesianGrid strokeDasharray="3 3" stroke={resolvedTheme === "dark" ? "#2e2d2d" : "#e1e1e6"} />
 
-      <Tooltip content={CustomTooltip} />
+      <Tooltip isAnimationActive={false} content={CustomTooltip} />
 
       <Area type="natural" dataKey="uv" stroke="#4ade80" strokeWidth={2} fillOpacity={1} fill="url(#colorUv)" />
       <Area type="natural" dataKey="pv" stroke="#f87171" strokeWidth={2} fillOpacity={1} fill="url(#colorPv)" />

@@ -47,8 +47,8 @@ const Nav = () => {
   const session = useSession();
 
   return (
-    <header className="h-[60px] bg-primary-foreground/80 backdrop-blur-sm sticky top-0 border-b border-border z-10 shadow-sm">
-      <div className="container h-full flex items-center">
+    <header className="h-[60px] bg-primary-foreground/80 backdrop-blur-sm sticky top-0 border-b border-border z-10 shadow-sm px-8">
+      <div className="h-full flex items-center">
         <Link href="/" className="flex-1">
           <span className="text-2xl font-bold text-primary">Chưa biết</span>
         </Link>

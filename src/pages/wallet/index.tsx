@@ -1,4 +1,4 @@
-import { NextPageWithLayout } from "./_app";
+import { NextPageWithLayout } from "../_app";
 import CommonLayout from "~/layout/common-layout";
 import PageHeader from "~/components/common/page-header";
 import { formatPrice } from "~/utils/format-price";
@@ -51,12 +51,12 @@ const Wallet: NextPageWithLayout = () => {
           </div>
         </div>
       </div>
-      <div className="p-6 bg-primary-foreground rounded-lg mb-16">
+      <div className="p-6 bg-primary-foreground rounded-lg mb-16 shadow-sm">
         <h2 className="text-xl font-medium text-muted-foreground mb-8">Lịch sử giao dịch</h2>
         <TransactionHistoryTable />
       </div>
 
-      <div className="p-6 bg-primary-foreground rounded-lg">
+      <div className="p-6 bg-primary-foreground rounded-lg shadow-sm">
         <h2 className="text-xl font-medium text-muted-foreground mb-8">Biểu đồ</h2>
         <ParentSize className="!h-[400px] w-full">{({ width, height }) => <LineChart height={height} width={width} />}</ParentSize>
       </div>
