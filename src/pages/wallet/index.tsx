@@ -11,7 +11,7 @@ import { ParentSize } from "@visx/responsive";
 const Wallet: NextPageWithLayout = () => {
   return (
     <div className="container my-16">
-      <PageHeader>Ví</PageHeader>
+      <PageHeader className="my-16">Ví</PageHeader>
       <div className="flex items-center gap-4 mb-16">
         <div className="flex-1 h-48 bg-primary-foreground rounded-lg p-6 shadow-sm flex flex-col justify-between">
           <h2 className="text-xl font-medium text-muted-foreground">Số dư hiện tại</h2>

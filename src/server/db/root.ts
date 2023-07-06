@@ -9,6 +9,6 @@ const connection = connect({
   password: env.DATABASE_PASSWORD,
 });
 
-export const db = drizzle(connection, { schema });
+export const db = drizzle(connection, { schema, logger: true });
 
 export type DrizzleDB = typeof db;
