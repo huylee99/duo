@@ -12,7 +12,7 @@ const Duo: NextPageWithLayout = () => {
 
   return (
     <div className="container my-16">
-      <PageHeader>Duo đang thực hiện</PageHeader>
+      <PageHeader className="my-16">Duo đang thực hiện</PageHeader>
       <div className="mt-16 grid grid-cols-5 gap-6">
         <div className="col-span-3 space-y-6">
           <div className="bg-primary-foreground p-6 rounded-lg shadow-md">

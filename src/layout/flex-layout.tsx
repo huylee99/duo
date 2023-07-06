@@ -2,7 +2,7 @@ import { type PropsWithChildren } from "react";
 import { Button } from "~/components/ui/button";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { ROLE } from "~/server/db/schema";
+import { type ROLE } from "~/server/db/schema";
 
 import useMediaQuery from "~/hooks/use-media-query";
 
@@ -15,7 +15,7 @@ export type LINKS = {
     id: string;
     url: string;
     name: string;
-    icon: () => JSX.Element;
+    icon: JSX.Element;
     role?: ROLE[];
   }[];
 }[];
@@ -37,9 +37,9 @@ const Menu: React.FC<{ links: LINKS }> = ({ links }) => {
               }
 
               return (
-                <Button key={link.id} variant={currentRoute.startsWith(link.url) ? "default" : "ghost"} size="sm" className="w-full justify-start" asChild>
+                <Button key={link.id} variant={currentRoute === link.url ? "default" : "ghost"} size="sm" className="w-full justify-start" asChild>
                   <Link href={link.url}>
-                    {link.icon()} <span>{link.name}</span>
+                    {link.icon} <span>{link.name}</span>
                   </Link>
                 </Button>
               );
@@ -53,7 +53,7 @@ const Menu: React.FC<{ links: LINKS }> = ({ links }) => {
 
 const SideBar: React.FC<{ links: LINKS }> = ({ links }) => {
   return (
-    <div className="hidden border-r py-8 lg:block lg:w-80 lg:shrink-0">
+    <div className="hidden border-r px-4 py-8 lg:block lg:w-80 lg:shrink-0">
       <Menu links={links} />
     </div>
   );
@@ -61,7 +61,7 @@ const SideBar: React.FC<{ links: LINKS }> = ({ links }) => {
 
 const FlexLayout: React.FC<PropsWithChildren<{ links?: LINKS }>> = ({ children, links }) => {
   return (
-    <div className="flex h-[calc(100vh-60px)] w-full">
+    <div className="flex h-[calc(100vh-61px)] w-full">
       {links && <SideBar links={links} />}
       <div className="w-full flex-1 overflow-auto p-4 lg:p-8">{children}</div>
     </div>
