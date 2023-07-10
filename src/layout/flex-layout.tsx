@@ -53,7 +53,7 @@ const Menu: React.FC<{ links: LINKS }> = ({ links }) => {
 
 const SideBar: React.FC<{ links: LINKS }> = ({ links }) => {
   return (
-    <div className="hidden border-r px-4 py-8 lg:block lg:w-80 lg:shrink-0">
+    <div className="hidden border-r px-4 py-8 lg:block lg:w-80 lg:shrink-0 bg-primary-foreground">
       <Menu links={links} />
     </div>
   );
