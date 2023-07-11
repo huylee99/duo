@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, int, text, uniqueIndex, index, timestamp, date, primaryKey, boolean, time } from "drizzle-orm/mysql-core";
+import { mysqlTable, varchar, int, text, uniqueIndex, index, timestamp, primaryKey, boolean } from "drizzle-orm/mysql-core";
 import { relations, InferModel } from "drizzle-orm";
 
 export const user = mysqlTable(
@@ -94,13 +94,17 @@ export const service = mysqlTable("service", {
   service_desc: varchar("service_desc", { length: 191 }),
   service_name: varchar("service_name", { length: 191 }).notNull(),
   service_price: int("service_price").notNull(),
-  minimum_hour: int("minimum_hour").notNull(),
-  is_available: boolean("is_available").notNull(),
+  minimum_hour: int("minimum_hour").default(1),
+  is_available: boolean("is_available").notNull().default(true),
   unit: varchar("unit", { enum: ["game", "time"], length: 8 }).notNull(),
-  apply_schedule: boolean("apply_schedule").notNull(),
-  start_time: int("start_time").notNull(),
-  end_time: int("end_time").notNull(),
+  apply_schedule: varchar("apply_schedule", { enum: ["all-day", "custom"], length: 10 })
+    .notNull()
+    .default("all-day"),
+  start_time: int("start_time"),
+  end_time: int("end_time"),
 });
+
+export type Service = InferModel<typeof service, "select">;
 
 export const discount = mysqlTable("discount", {
   id: varchar("id", { length: 24 }).primaryKey().notNull(),
@@ -160,13 +164,10 @@ export const userRelations = relations(user, ({ many }) => ({
 
 export const orderRelations = relations(order, ({ one }) => ({
   user: one(user, {
-    fields: [order.user_id],
-    references: [user.id],
+    fields: [order.user_id, order.partner_id],
+    references: [user.id, user.id],
   }),
-  partner: one(user, {
-    fields: [order.partner_id],
-    references: [user.id],
-  }),
+
   service: one(service, {
     fields: [order.service_id],
     references: [service.id],
@@ -175,12 +176,8 @@ export const orderRelations = relations(order, ({ one }) => ({
 
 export const ratingRelations = relations(rating, ({ one }) => ({
   user: one(user, {
-    fields: [rating.user_id],
-    references: [user.id],
-  }),
-  partner: one(user, {
-    fields: [rating.partner_id],
-    references: [user.id],
+    fields: [rating.user_id, rating.partner_id],
+    references: [user.id, user.id],
   }),
 }));
 

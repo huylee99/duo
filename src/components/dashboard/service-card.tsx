@@ -1,27 +1,44 @@
 import { MoreHorizontal, Gem, Clock5 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import useToggle from "~/hooks/use-toggle";
+import { Service } from "~/server/db/schema";
+import { formatPrice } from "~/utils/format-price";
+import { formatTime } from "~/utils/format-time";
 
-const ServiceCard = () => {
+type ServiceCardProps = {
+  service: Service;
+};
+
+const ServiceCard = (props: ServiceCardProps) => {
+  const { service } = props;
+
+  const startTime = service.start_time !== null && formatTime(service.start_time);
+  const endTime = service.end_time !== null && formatTime(service.end_time);
+
+  const schedule = service.apply_schedule === "all-day" ? "Cả ngày" : `${startTime} - ${endTime}`;
+
   return (
     <div className="border border-border rounded-md shadow-sm p-4 bg-primary-foreground">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-primary font-medium">Chơi game cùng nhau</h2>
+        <h2 className="text-primary font-medium">{service.service_name}</h2>
         <MoreDropdown />
       </div>
-      <p className="text-sm text-muted-foreground mb-3">Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione, odio?</p>
+      <p className="text-sm text-muted-foreground mb-3">{!service.service_desc ? "Chưa cập nhật" : service.service_desc}</p>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Gem className="w-4 h-4" /> <span className="text-sm">Giá tiền</span>
           </div>
-          <span className="text-sm font-medium">20.000đ / giờ</span>
+          <span className="text-sm font-medium">
+            {formatPrice(service.service_price)} / {service.unit === "game" ? "game" : "giờ"}
+          </span>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Clock5 className="w-4 h-4" /> <span className="text-sm">Thời gian</span>
           </div>
-          <span className="text-sm font-medium">11:00 PM - 6:00 AM</span>
+
+          <span className="text-sm font-medium">{schedule}</span>
         </div>
       </div>
     </div>
