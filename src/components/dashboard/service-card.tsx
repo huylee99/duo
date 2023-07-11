@@ -19,7 +19,7 @@ const ServiceCard = (props: ServiceCardProps) => {
 
   return (
     <div className="border border-border rounded-md shadow-sm p-4 bg-primary-foreground">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <h2 className="text-primary font-medium">{service.service_name}</h2>
         <MoreDropdown />
       </div>

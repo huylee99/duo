@@ -4,7 +4,7 @@ import CommonLayout from "~/layout/common-layout";
 import DashboardLayout from "~/layout/dashboard-layout";
 import PageHeader from "~/components/common/page-header";
 import ServiceCard from "~/components/dashboard/service-card";
-import AddService from "./services/add-service";
+import AddService from "../../components/dashboard/services/add-service";
 import { api } from "~/server/utils/api";
 
 const Services: NextPageWithLayout = () => {
