@@ -4,16 +4,25 @@ import CommonLayout from "~/layout/common-layout";
 import DashboardLayout from "~/layout/dashboard-layout";
 import PageHeader from "~/components/common/page-header";
 import ServiceCard from "~/components/dashboard/service-card";
+import AddService from "./services/add-service";
+import { api } from "~/server/utils/api";
 
 const Services: NextPageWithLayout = () => {
+  const { isLoading, data } = api.service.getMany.useQuery(undefined);
+
   return (
     <Fragment>
-      <PageHeader className="mb-4 lg:mb-8">Dịch vụ</PageHeader>
-      <div className="grid grid-cols-4 gap-4">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((_, index) => (
-          <ServiceCard key={index} />
-        ))}
+      <div className="flex items-center justify-between mb-4 lg:mb-8">
+        <PageHeader>Dịch vụ</PageHeader>
+        <AddService />
       </div>
+      {!isLoading && data && (
+        <div className="grid grid-cols-4 gap-4">
+          {data.map(service => (
+            <ServiceCard key={service.id} service={service} />
+          ))}
+        </div>
+      )}
     </Fragment>
   );
 };
