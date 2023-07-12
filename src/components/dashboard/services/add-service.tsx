@@ -1,4 +1,4 @@
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from "~/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogHeader } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import useToggle from "~/hooks/use-toggle";
 import { type InsertRequest } from "~/server/db/validator-schema";
@@ -8,11 +8,22 @@ import ServiceForm from "./service-form";
 
 const AddService = () => {
   const { onChange, value, onClose } = useToggle();
+  const utils = api.useContext();
 
   const { mutateAsync, isLoading } = api.service.create.useMutation({
-    onSuccess: () => {
+    onSuccess: newData => {
+      utils.service.getMany.setData(undefined, old => {
+        if (old) {
+          return [...old, newData];
+        }
+        return [newData];
+      });
+
       toast.success("Thêm dịch vụ thành công");
       onClose();
+    },
+    onError: () => {
+      toast.error("Thêm dịch vụ thất bại");
     },
   });
 

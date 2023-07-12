@@ -213,7 +213,7 @@ const ServiceForm = (props: ServiceFormProps) => {
         )}
         <DialogFooter>
           <Button type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />} Tạo
+            {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />} Lưu
           </Button>
         </DialogFooter>
       </form>
