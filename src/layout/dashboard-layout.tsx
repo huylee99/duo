@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
 import FlexLayout, { type LINKS } from "./flex-layout";
-import { Home, LineChart, Award, Gamepad2, Banknote, Heart, Swords } from "lucide-react";
+import { Home, LineChart, Award, Gamepad2, Banknote, Heart, Swords, Ticket } from "lucide-react";
 
 const links: LINKS = [
   {
@@ -24,6 +24,12 @@ const links: LINKS = [
         url: "/dashboard/services",
         name: "Dịch vụ",
         icon: <Swords className="mr-2 h-4 w-4" />,
+      },
+      {
+        id: "1-4",
+        url: "/dashboard/discounts",
+        name: "Khuyến mãi",
+        icon: <Ticket className="mr-2 h-4 w-4" />,
       },
     ],
   },

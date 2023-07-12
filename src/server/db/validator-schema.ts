@@ -47,3 +47,20 @@ export const insertServiceFormValidator = insertServiceRequestSchema
   );
 
 export type InsertRequest = z.infer<typeof insertServiceRequestSchema>;
+
+// discounts schema
+
+const discountValidatorSchema = createInsertSchema(schema.discount, {
+  discount_percent: z.number().int().min(5).max(100),
+  is_active: z.boolean(),
+});
+
+export const insertDiscountRequestSchema = discountValidatorSchema.pick({
+  discount_percent: true,
+  is_active: true,
+  start_date: true,
+  end_date: true,
+  apply_schedule: true,
+});
+
+export type InsertDiscountRequest = z.infer<typeof insertDiscountRequestSchema>;

@@ -111,11 +111,14 @@ export const discount = mysqlTable("discount", {
   user_id: varchar("user_id", { length: 24 }).notNull(),
   discount_percent: int("discount_percent").notNull(),
   is_active: boolean("is_active").notNull(),
-  start_date: timestamp("start_date", { mode: "date" }).notNull(),
-  end_date: timestamp("end_date", { mode: "date" }).notNull(),
+  apply_schedule: varchar("apply_schedule", { enum: ["none", "custom"], length: 10 }).notNull(),
+  start_date: timestamp("start_date", { mode: "date" }),
+  end_date: timestamp("end_date", { mode: "date" }),
   created_at: timestamp("created_at").defaultNow().notNull(),
   deleted_at: timestamp("deleted_at", { mode: "date" }),
 });
+
+export type Discount = InferModel<typeof discount, "select">;
 
 export const order = mysqlTable(
   "order",
