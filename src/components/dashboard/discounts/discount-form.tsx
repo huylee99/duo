@@ -22,7 +22,7 @@ const baseDefaultValues: Partial<InsertDiscountRequest> = {
 
 type DiscountFormProps = {
   defaultValues?: Partial<InsertDiscountRequest>;
-  onSubmit?: (values: InsertDiscountRequest) => Promise<void> | void;
+  onSubmit: (values: InsertDiscountRequest) => Promise<void> | void;
   isLoading?: boolean;
 };
 
@@ -40,6 +40,7 @@ const DiscountForm = (props: DiscountFormProps) => {
       <form
         onSubmit={form.handleSubmit(async values => {
           try {
+            await onSubmit(values);
             form.reset();
           } catch (error) {
             console.log(error);
