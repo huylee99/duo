@@ -10,7 +10,7 @@ type DeleteServiceProps = {
   setOpen: (value: boolean) => void;
 };
 
-const DeleteService = (props: DeleteServiceProps) => {
+const DeleteDiscount = (props: DeleteServiceProps) => {
   const { setOpen, isOpen, id } = props;
   const utils = api.useContext();
 
@@ -23,11 +23,11 @@ const DeleteService = (props: DeleteServiceProps) => {
         return old;
       });
 
-      toast.success("Xóa dịch vụ thành công");
+      toast.success("Xóa thành công");
       setOpen(false);
     },
     onError: () => {
-      toast.error("Xóa dịch vụ thất bại");
+      toast.error("Xóa thất bại");
     },
   });
 
@@ -35,8 +35,8 @@ const DeleteService = (props: DeleteServiceProps) => {
     <AlertDialog onOpenChange={setOpen} open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Bạn chắc chắn muốn xóa khuyến mãi này?</AlertDialogTitle>
-          <AlertDialogDescription>Khuyến mãi sẽ bị xóa vĩnh viễn và không thể hồi phục lại.</AlertDialogDescription>
+          <AlertDialogTitle>Bạn chắc chắn muốn xóa dịch vụ này?</AlertDialogTitle>
+          <AlertDialogDescription>Dịch vụ sẽ bị xóa vĩnh viễn và không thể hồi phục lại.</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setOpen(false)} disabled={isLoading}>
@@ -56,4 +56,4 @@ const DeleteService = (props: DeleteServiceProps) => {
   );
 };
 
-export default DeleteService;
+export default DeleteDiscount;
