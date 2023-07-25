@@ -57,6 +57,34 @@ export const account = mysqlTable(
   }
 );
 
+export const wallet = mysqlTable("wallet", {
+  id: varchar("id", { length: 24 }).primaryKey().notNull(),
+  user_id: varchar("user_id", { length: 24 }).notNull(),
+  balance: int("balance").notNull().default(0),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+  updated_at: timestamp("updated_at").notNull().onUpdateNow(),
+});
+
+export const transaction = mysqlTable(
+  "transaction",
+  {
+    id: varchar("id", { length: 24 }).primaryKey().notNull(),
+    user_id: varchar("user_id", { length: 24 }).notNull(),
+    wallet_id: varchar("wallet_id", { length: 24 }).notNull(),
+    amount: int("amount").notNull(),
+    type: varchar("type", { enum: ["deposit", "withdraw"], length: 8 }).notNull(),
+    payment_method: varchar("payment_method", { enum: ["momo", "bank", "qrCode"], length: 8 }).notNull(),
+    status: varchar("status", { enum: ["pending", "completed", "failed"], length: 8 }).notNull(),
+    created_at: timestamp("created_at").notNull().defaultNow(),
+    updated_at: timestamp("updated_at").notNull().onUpdateNow(),
+  },
+  table => {
+    return {
+      walletIdx: index("wallet_idx").on(table.wallet_id),
+    };
+  }
+);
+
 export const session = mysqlTable(
   "sessions",
   {
@@ -156,13 +184,14 @@ export const rating = mysqlTable("rating", {
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ many, one }) => ({
   accounts: many(account),
   sessions: many(session),
   orders: many(order),
   services: many(service),
   ratings: many(rating),
   discounts: many(discount),
+  wallet: one(wallet),
 }));
 
 export const orderRelations = relations(order, ({ one }) => ({
@@ -175,6 +204,10 @@ export const orderRelations = relations(order, ({ one }) => ({
     fields: [order.service_id],
     references: [service.id],
   }),
+}));
+
+export const walletRelations = relations(wallet, ({ many }) => ({
+  transactions: many(transaction),
 }));
 
 export const ratingRelations = relations(rating, ({ one }) => ({

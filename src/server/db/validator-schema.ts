@@ -64,3 +64,9 @@ export const insertDiscountRequestSchema = discountValidatorSchema.pick({
 });
 
 export type InsertDiscountRequest = z.infer<typeof insertDiscountRequestSchema>;
+
+// wallet schema
+
+export const rechargeValidatorRequestSchema = createInsertSchema(schema.transaction, {
+  amount: z.number().int().min(10000).max(1000000),
+});
