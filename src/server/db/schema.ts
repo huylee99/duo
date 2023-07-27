@@ -164,8 +164,8 @@ export const order = mysqlTable(
     total_service_requested: int("total_service_requested").notNull(),
     order_status: varchar("status", { enum: ["pending", "accepted", "rejected", "completed"], length: 8 }).notNull(),
     payment_status: varchar("payment_status", { enum: ["pending", "paid", "refunded"], length: 8 }).notNull(),
-    created_at: timestamp("created_at").notNull().defaultNow(),
-    updated_at: timestamp("updated_at").notNull().defaultNow(),
+    updated_at: timestamp("updated_at", { mode: "date" }).notNull().onUpdateNow(),
+    created_at: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   },
   table => {
     return {
@@ -181,7 +181,26 @@ export const rating = mysqlTable("rating", {
   rating: int("rating").notNull(),
   comment: varchar("comment", { length: 191 }),
   is_deleted: boolean("is_deleted").notNull(),
-  created_at: timestamp("created_at").notNull().defaultNow(),
+  created_at: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const conversation = mysqlTable("conversation", {
+  id: varchar("id", { length: 24 }).primaryKey().notNull(),
+  user1_id: varchar("user1_id", { length: 24 }).notNull(),
+  user2_id: varchar("user2_id", { length: 24 }).notNull(),
+  latest_message_id: varchar("latest_message_id", { length: 24 }),
+  updated_at: timestamp("updated_at", { mode: "date" }).notNull().onUpdateNow(),
+  created_at: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const message = mysqlTable("message", {
+  id: varchar("id", { length: 24 }).primaryKey().notNull(),
+  conversation_id: varchar("conversation_id", { length: 24 }).notNull(),
+  sender_id: varchar("sender_id", { length: 24 }).notNull(),
+  recipient_id: varchar("recipient_id", { length: 24 }).notNull(),
+  message: varchar("message", { length: 191 }).notNull(),
+  seen: boolean("seen").notNull().default(false),
+  created_at: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
 export const userRelations = relations(user, ({ many, one }) => ({
@@ -192,6 +211,55 @@ export const userRelations = relations(user, ({ many, one }) => ({
   ratings: many(rating),
   discounts: many(discount),
   wallet: one(wallet),
+  user1_conversations: many(conversation, { relationName: "user1_relation" }),
+  user2_conversations: many(conversation, { relationName: "user2_relation" }),
+}));
+
+export const transactionRelations = relations(transaction, ({ one }) => ({
+  user: one(user, {
+    fields: [transaction.user_id],
+    references: [user.id],
+  }),
+  wallet: one(wallet, {
+    fields: [transaction.wallet_id],
+    references: [wallet.id],
+  }),
+}));
+
+export const messageRelations = relations(message, ({ one }) => ({
+  conversation: one(conversation, {
+    fields: [message.conversation_id],
+    references: [conversation.id],
+  }),
+  sender: one(user, {
+    relationName: "sender",
+    references: [user.id],
+    fields: [message.sender_id],
+  }),
+  recipient: one(user, {
+    relationName: "recipient",
+    references: [user.id],
+    fields: [message.recipient_id],
+  }),
+}));
+
+export const conversationRelations = relations(conversation, ({ one, many }) => ({
+  messages: many(message),
+  user1: one(user, {
+    relationName: "user1_relation",
+    references: [user.id],
+    fields: [conversation.user1_id],
+  }),
+  user2: one(user, {
+    relationName: "user2_relation",
+    references: [user.id],
+    fields: [conversation.user2_id],
+  }),
+  latestMessage: one(message, {
+    relationName: "latestMessage",
+    references: [message.id],
+    fields: [conversation.latest_message_id],
+  }),
 }));
 
 export const orderRelations = relations(order, ({ one }) => ({
@@ -206,8 +274,12 @@ export const orderRelations = relations(order, ({ one }) => ({
   }),
 }));
 
-export const walletRelations = relations(wallet, ({ many }) => ({
+export const walletRelations = relations(wallet, ({ many, one }) => ({
   transactions: many(transaction),
+  user: one(user, {
+    fields: [wallet.user_id],
+    references: [user.id],
+  }),
 }));
 
 export const ratingRelations = relations(rating, ({ one }) => ({
