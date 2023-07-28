@@ -7,6 +7,7 @@ import Link from "next/link";
 import UserMenu from "./user-menu";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { pusherClient } from "~/lib/pusher-client";
 
 const navigation = [
   { name: "Trang chủ", href: "/" },
@@ -45,6 +46,16 @@ const ThemeToggle = () => {
 const Nav = () => {
   const router = useRouter();
   const session = useSession();
+
+  useEffect(() => {
+    if (session.data?.user.id) {
+      const channel = pusherClient.subscribe(session.data?.user.id);
+
+      channel.bind("notification", (data: any) => {
+        console.log(data);
+      });
+    }
+  }, [session.data?.user.id]);
 
   return (
     <header className="h-[60px] bg-primary-foreground/80 backdrop-blur-sm sticky top-0 border-b border-border z-10 shadow-sm px-8">

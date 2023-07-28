@@ -189,7 +189,7 @@ export const conversation = mysqlTable("conversation", {
   user1_id: varchar("user1_id", { length: 24 }).notNull(),
   user2_id: varchar("user2_id", { length: 24 }).notNull(),
   latest_message_id: varchar("latest_message_id", { length: 24 }),
-  updated_at: timestamp("updated_at", { mode: "date" }).notNull().onUpdateNow(),
+  updated_at: timestamp("updated_at", { mode: "date" }).onUpdateNow(),
   created_at: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 

@@ -2,6 +2,7 @@ import { MessagesSquare } from "lucide-react";
 import Image from "next/image";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { Minus, X, Send } from "lucide-react";
+import { api } from "~/server/utils/api";
 
 const GreenDot = () => {
   return <div className="w-3 h-3 rounded-full bg-green-400 absolute top-0 right-0 shadow-md border border-green-500"></div>;
@@ -24,6 +25,10 @@ const ChatAvatar = () => {
 };
 
 const ChatList = () => {
+  const { data } = api.chat.getConversations.useQuery(undefined);
+
+  console.log(data);
+
   return (
     <div className="flex items-end gap-4 fixed right-24 bottom-0">
       <div className="w-[336px] h-[432px] bg-primary-foreground rounded-t-lg shadow-md flex flex-col">
