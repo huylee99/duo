@@ -1,7 +1,6 @@
 import { authedProcedure, createTRPCRouter } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { wallet as walletSchema, transaction as transactionSchema } from "../db/schema";
-import * as z from "zod";
+import { wallet, transaction as transactionSchema } from "../db/schema";
 import { rechargeValidatorRequestSchema } from "../db/validator-schema";
 import { createId } from "@paralleldrive/cuid2";
 
@@ -18,7 +17,7 @@ const recharge = authedProcedure.input(rechargeValidatorRequestSchema).mutation(
     amount: input.amount,
     wallet_id: wallet.id,
     type: "deposit",
-    payment_method: "momo",
+    payment_method: input.payment_method,
     status: "pending",
     user_id: ctx.session.user.id,
     id: createId(),

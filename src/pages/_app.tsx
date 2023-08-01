@@ -8,6 +8,7 @@ import { type ReactElement, type ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -25,6 +26,7 @@ const App = ({ Component, pageProps, session }: AppPropsWithLayout) => {
 
   return (
     <>
+      <ReactQueryDevtools initialIsOpen={true} />
       <main className={inter.className}>
         <SessionProvider session={pageProps.session || session} refetchOnWindowFocus={false}>
           <ThemeProvider attribute="class">{getLayout(<Component {...pageProps} />)}</ThemeProvider>

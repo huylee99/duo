@@ -70,3 +70,15 @@ export type InsertDiscountRequest = z.infer<typeof insertDiscountRequestSchema>;
 export const rechargeValidatorRequestSchema = createInsertSchema(schema.transaction, {
   amount: z.number().int().min(10000).max(1000000),
 });
+
+// chat schema
+
+export const chatValidatorRequestSchema = createInsertSchema(schema.message, {
+  message: z.string().min(1).max(191),
+  recipient_id: z.string().length(24),
+  conversation_id: z.string().length(24),
+}).pick({
+  conversation_id: true,
+  message: true,
+  recipient_id: true,
+});
