@@ -19,7 +19,7 @@ export const user = mysqlTable(
     instagram: varchar("instagram", { length: 191 }),
     discord: varchar("discord", { length: 191 }),
     banner: varchar("banner", { length: 191 }),
-    image: varchar("image", { length: 191 }),
+    image: varchar("image", { length: 191 }).notNull(),
   },
   table => {
     return {

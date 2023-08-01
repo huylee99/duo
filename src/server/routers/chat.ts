@@ -2,7 +2,7 @@ import { createTRPCRouter, authedProcedure } from "../trpc";
 import { chatValidatorRequestSchema } from "../db/validator-schema";
 import { message as messageSchema, conversation as conversationSchema, user as userSchema } from "../db/schema";
 import { createId } from "@paralleldrive/cuid2";
-import { eq, and, or, sql, desc } from "drizzle-orm";
+import { eq, and, or, sql, desc, like } from "drizzle-orm";
 import { pusherServer } from "~/lib/pusher-server";
 import { z } from "zod";
 import { alias } from "drizzle-orm/mysql-core";
@@ -42,7 +42,7 @@ const sendMessage = authedProcedure.input(chatValidatorRequestSchema).mutation(a
     });
 
     if (createdConversation) {
-      await pusherServer.trigger(`user-${recipient_id}`, "new-conversation", createdConversation);
+      await pusherServer.sendToUser(recipient_id, "new-conversation", createdConversation);
     }
 
     conversationId = newConversationId;
@@ -59,11 +59,11 @@ const sendMessage = authedProcedure.input(chatValidatorRequestSchema).mutation(a
   const newMessage = await ctx.db.query.message.findFirst({ where: eq(messageSchema.id, messageId) });
 
   if (newMessage) {
-    await pusherServer.trigger(`conversation-${conversation_id}`, "new-message", newMessage);
+    await pusherServer.trigger(`private-chat-${conversation_id}`, "new-message", newMessage);
   }
 });
 
-const seenMessage = authedProcedure.input(z.object({ conversation_id: z.string().length(24) })).mutation(async ({ ctx, input }) => {
+const markAsRead = authedProcedure.input(z.object({ conversation_id: z.string().length(24) })).mutation(async ({ ctx, input }) => {
   const { conversation_id } = input;
   const { id } = ctx.session.user;
 
@@ -71,6 +71,8 @@ const seenMessage = authedProcedure.input(z.object({ conversation_id: z.string()
     .update(messageSchema)
     .set({ seen: true })
     .where(and(eq(messageSchema.conversation_id, conversation_id), eq(messageSchema.recipient_id, id), eq(messageSchema.seen, false)));
+
+  await pusherServer.sendToUser(id, "conversation:read", { conversation_id });
 });
 
 const user1 = alias(userSchema, "user1");
@@ -140,10 +142,45 @@ const getConversations = authedProcedure.query(async ({ ctx }) => {
   return conversations;
 });
 
+const getMessages = authedProcedure.input(z.object({ conversation_id: z.string().length(24) })).query(async ({ ctx, input }) => {
+  const { conversation_id } = input;
+  const { id } = ctx.session.user;
+
+  const messages = await ctx.db.query.message.findMany({
+    where: eq(messageSchema.conversation_id, conversation_id),
+    orderBy: (messageSchema, { desc }) => [desc(messageSchema.created_at)],
+  });
+
+  await ctx.db
+    .update(messageSchema)
+    .set({ seen: true })
+    .where(and(eq(messageSchema.conversation_id, conversation_id), eq(messageSchema.recipient_id, id), eq(messageSchema.seen, false)));
+
+  return messages;
+});
+
+const searchUsers = authedProcedure.input(z.object({ query: z.string() })).query(async ({ ctx, input }) => {
+  const { query } = input;
+
+  const users = await ctx.db
+    .select({
+      id: userSchema.id,
+      name: userSchema.name,
+      username: userSchema.username,
+      image: userSchema.image,
+    })
+    .from(userSchema)
+    .where(or(like(userSchema.name, `%${query}%`), like(userSchema.username, `%${query}%`)));
+
+  return users;
+});
+
 const chatRouter = createTRPCRouter({
   sendMessage,
-  seenMessage,
+  markAsRead,
   getConversations,
+  getMessages,
+  searchUsers,
 });
 
 export default chatRouter;

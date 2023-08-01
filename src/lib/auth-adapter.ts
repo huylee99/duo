@@ -13,7 +13,7 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
       await db.insert(user).values({
         email: data.email,
         emailVerified: data.emailVerified,
-        image: data.image ? data.image : `https://avatars.dicebear.com/api/micah/${data.email}.svg`,
+        image: `https://avatars.dicebear.com/api/micah/${data.name || data.email}.svg`,
         name: data.name,
         id: createId(),
         username,
@@ -53,7 +53,10 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
     },
 
     updateUser: async ({ id, ...data }) => {
-      await db.update(user).set(data).where(eq(user.id, id));
+      await db
+        .update(user)
+        .set({ ...data, image: data.image ? data.image : `https://avatars.dicebear.com/api/micah/${data.name || data.email}.svg` })
+        .where(eq(user.id, id));
       const rows = await db.select().from(user).where(eq(user.id, id)).limit(1);
 
       return rows[0];
