@@ -60,11 +60,14 @@ const sendMessage = authedProcedure.input(chatValidatorRequestSchema).mutation(a
 
   if (newMessage) {
     await pusherServer.trigger(`private-chat-${conversation_id}`, "new-message", newMessage);
+    await pusherServer.sendToUser(recipient_id, "conversation:update", { conversation_id });
+
+    return newMessage;
   }
 });
 
-const markAsRead = authedProcedure.input(z.object({ conversation_id: z.string().length(24) })).mutation(async ({ ctx, input }) => {
-  const { conversation_id } = input;
+const markAsRead = authedProcedure.input(z.object({ conversation_id: z.string().length(24), senderId: z.string().length(24) })).mutation(async ({ ctx, input }) => {
+  const { conversation_id, senderId } = input;
   const { id } = ctx.session.user;
 
   await ctx.db
@@ -72,7 +75,7 @@ const markAsRead = authedProcedure.input(z.object({ conversation_id: z.string().
     .set({ seen: true })
     .where(and(eq(messageSchema.conversation_id, conversation_id), eq(messageSchema.recipient_id, id), eq(messageSchema.seen, false)));
 
-  await pusherServer.sendToUser(id, "conversation:read", { conversation_id });
+  await pusherServer.sendToUser(senderId, "conversation:read", { conversation_id });
 });
 
 const user1 = alias(userSchema, "user1");
@@ -148,7 +151,7 @@ const getMessages = authedProcedure.input(z.object({ conversation_id: z.string()
 
   const messages = await ctx.db.query.message.findMany({
     where: eq(messageSchema.conversation_id, conversation_id),
-    orderBy: (messageSchema, { desc }) => [desc(messageSchema.created_at)],
+    orderBy: (messageSchema, { asc }) => [asc(messageSchema.created_at)],
   });
 
   await ctx.db
