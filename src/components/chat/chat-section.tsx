@@ -54,11 +54,19 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
   const { conversation, closeConversation } = props;
   const t = api.useContext();
 
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState(true);
+
+  console.log(isFocused);
 
   const chatPanelRef = useRef<HTMLDivElement>(null);
+  const scrollDownRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(chatPanelRef, () => setIsFocused(false));
+  const handleOutsideClick = useEvent(() => {
+    console.log("abc");
+    setIsFocused(false);
+  });
+
+  useClickOutside(chatPanelRef, handleOutsideClick);
 
   const session = useSession();
   const senderId = session.data?.user.id!;
@@ -72,6 +80,8 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
       refetchOnMount: true,
     }
   );
+
+  const lastMessage = data?.[data.length - 1];
 
   const { mutate } = api.chat.markAsRead.useMutation({
     onSuccess: () => {
@@ -98,26 +108,15 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
     });
 
     if (data.recipient_id === senderId && isFocused) {
-      mutate({ conversation_id: conversation.id });
-    } else {
-      t.chat.getConversations.setData(undefined, prev => {
-        if (!prev) return prev;
-
-        return prev.map(conversation => {
-          if (conversation.id === data.conversation_id) {
-            return { ...conversation, unreadCount: conversation.unreadCount + 1 };
-          }
-          return conversation;
-        });
-      });
+      mutate({ conversation_id: conversation.id, senderId: data.sender_id });
     }
   });
 
   useEffect(() => {
     if (isFocused && conversation.unreadCount > 0) {
-      mutate({ conversation_id: conversation.id });
+      mutate({ conversation_id: conversation.id, senderId: otherUser.id });
     }
-  }, [isFocused, mutate, conversation.id, conversation.unreadCount]);
+  }, [isFocused, mutate, conversation.id, conversation.unreadCount, otherUser.id]);
 
   useEffect(() => {
     const channelName = `private-chat-${conversation.id}`;
@@ -130,8 +129,23 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
     };
   }, [setMessage, conversation.id]);
 
+  useEffect(() => {
+    if (scrollDownRef.current && data) {
+      scrollDownRef.current.scrollTop = scrollDownRef.current.scrollHeight;
+    }
+  }, [data]);
+
   return (
-    <div onClick={() => setIsFocused(true)} className="w-[336px] h-[432px] bg-primary-foreground rounded-t-lg shadow-md flex flex-col" ref={chatPanelRef}>
+    <div
+      onClick={event => {
+        if (Number(conversation.unreadCount) > 0) {
+          mutate({ conversation_id: conversation.id, senderId: otherUser.id });
+        }
+        setIsFocused(true);
+      }}
+      className="w-[336px] h-[432px] bg-primary-foreground rounded-t-lg shadow-md flex flex-col"
+      ref={chatPanelRef}
+    >
       <div className="p-4 flex items-center justify-between border-b border-border/40 flex-1">
         <div className="flex items-center">
           <Image src={otherUser.image} alt="avatar" className="w-10 h-10 mr-2 rounded-full aspect-square shadow-md" width={40} height={40} unoptimized />
@@ -146,14 +160,16 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
           </div>
         </div>
       </div>
-      <div className="h-full items-start flex flex-col p-4 gap-2 overflow-auto">
+      <div className="h-full items-start flex flex-col p-4 gap-1 overflow-auto" ref={scrollDownRef}>
         {!isLoading && data && data.length > 0
           ? data.map(message => (
-              <div key={message.id} className={cn("py-1 px-2 rounded-md leading-none max-w-[288px]", message.sender_id === senderId ? "self-end bg-pink-800" : "bg-secondary", message.id === "temporary" && "animate-pulse")}>
+              <div key={message.id} className={cn("py-1 px-2 rounded-md leading-none max-w-[288px]", message.sender_id === senderId ? "self-end bg-pink-800" : "bg-secondary")}>
                 <span className="leading-normal text-[15px]">{message.message}</span>
               </div>
             ))
           : ""}
+        {lastMessage && lastMessage.id !== "temporary" && !lastMessage.seen && lastMessage.sender_id === senderId && <span className="text-xs text-muted-foreground leading-none self-end">Đã gửi</span>}
+        {lastMessage?.seen && senderId === lastMessage.sender_id && <span className="text-xs text-muted-foreground self-end">Đã xem</span>}
       </div>
       <SendMessage conversation_id={conversation.id} isFocused={isFocused} recipientId={otherUser.id} senderId={senderId} />
     </div>
@@ -180,6 +196,15 @@ const SendMessage: React.FC<{ conversation_id: string; isFocused: boolean; recip
 
         return [...prev, data];
       });
+    },
+    onSuccess: data => {
+      if (data) {
+        t.chat.getMessages.setData({ conversation_id: data.conversation_id }, prev => {
+          if (!prev) return [data];
+
+          return prev.map(message => (message.id === "temporary" ? data : message));
+        });
+      }
     },
   });
 
@@ -259,21 +284,30 @@ const ChatButton = () => {
 const Chat = () => {
   const t = api.useContext();
   const { data, isLoading } = api.chat.getConversations.useQuery(undefined);
-  const [selectedConversations, setSelectedConversations] = React.useState<Conversation[]>([]);
+  const [selectedConversationId, setSelectedConversationId] = React.useState<string>();
+
+  const selectedConversation = data?.filter(conversation => conversation.id === selectedConversationId)[0] ?? undefined;
 
   const selectConversation = (conversation_id: string) => {
-    if (!selectedConversations.find(conversation => conversation.id === conversation_id)) {
-      return setSelectedConversations(prev => [...prev, data?.find(conversation => conversation.id === conversation_id)!]);
-    }
+    setSelectedConversationId(conversation_id);
   };
 
-  const closeConversation = (conversation_id: string) => {
-    setSelectedConversations(prev => prev.filter(conversation => conversation.id !== conversation_id));
+  const closeConversation = () => {
+    setSelectedConversationId(undefined);
   };
 
-  // const updateConversation = useEvent((conversation: Conversation) => {
+  const updateConversation = useEvent(({ conversation_id }: { conversation_id: string }) => {
+    t.chat.getConversations.setData(undefined, prev => {
+      if (!prev) return prev;
 
-  // });
+      return prev.map(conversation => {
+        if (conversation.id === conversation_id) {
+          return { ...conversation, unreadCount: Number(conversation.unreadCount) + 1 };
+        }
+        return conversation;
+      });
+    });
+  });
 
   const markAsRead = useEvent(({ conversation_id }: { conversation_id: string }) => {
     t.chat.getMessages.setData({ conversation_id }, prev => {
@@ -297,12 +331,14 @@ const Chat = () => {
   useEffect(() => {
     // pusherClient.bind("conversation:update", updateConversation);
     pusherClient.bind("conversation:read", markAsRead);
+    pusherClient.bind("conversation:update", updateConversation);
 
     return () => {
       // pusherClient.unbind("conversation:update", updateConversation);
       pusherClient.unbind("conversation:read", markAsRead);
+      pusherClient.unbind("conversation:update", updateConversation);
     };
-  }, [markAsRead]);
+  }, [markAsRead, updateConversation]);
 
   return (
     <>
@@ -318,11 +354,9 @@ const Chat = () => {
         <ChatButton />
       </div>
 
-      {selectedConversations.length > 0 && (
+      {selectedConversation && (
         <div className="flex items-end gap-4 fixed z-10 right-24 bottom-0">
-          {selectedConversations.map(conversation => (
-            <ChatPanel key={conversation.id} conversation={conversation} closeConversation={closeConversation} />
-          ))}
+          <ChatPanel key={selectedConversation.id} conversation={selectedConversation} closeConversation={closeConversation} />
         </div>
       )}
     </>
