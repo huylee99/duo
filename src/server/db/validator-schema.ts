@@ -76,7 +76,7 @@ export const rechargeValidatorRequestSchema = createInsertSchema(schema.transact
 export const chatValidatorRequestSchema = createInsertSchema(schema.message, {
   message: z.string().min(1).max(191),
   recipient_id: z.string().length(24),
-  conversation_id: z.string().length(24),
+  conversation_id: z.string(),
 }).pick({
   conversation_id: true,
   message: true,

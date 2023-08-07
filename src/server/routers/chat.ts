@@ -13,10 +13,10 @@ const sendMessage = authedProcedure.input(chatValidatorRequestSchema).mutation(a
 
   let conversationId = conversation_id;
 
-  if (!conversationId) {
+  if (conversationId === "") {
     const newConversationId = createId();
 
-    await ctx.db.insert(conversationSchema).values({ id: newConversationId, latest_message_id: null, user1_id: id, user2_id: recipient_id });
+    await ctx.db.insert(conversationSchema).values({ id: newConversationId, latest_message_id: null, user1_id: id, user2_id: recipient_id, updated_at: new Date() });
 
     const createdConversation = await ctx.db.query.conversation.findFirst({
       where: eq(conversationSchema.id, newConversationId),
@@ -37,12 +37,12 @@ const sendMessage = authedProcedure.input(chatValidatorRequestSchema).mutation(a
             image: true,
           },
         },
-        messages: true,
+        latestMessage: true,
       },
     });
 
     if (createdConversation) {
-      await pusherServer.sendToUser(recipient_id, "new-conversation", createdConversation);
+      await Promise.allSettled([pusherServer.sendToUser(recipient_id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 1 } }), pusherServer.sendToUser(id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 0 } })]);
     }
 
     conversationId = newConversationId;
@@ -145,6 +145,44 @@ const getConversations = authedProcedure.query(async ({ ctx }) => {
   return conversations;
 });
 
+const startConversation = authedProcedure.input(z.object({ recipient_id: z.string().length(24) })).mutation(async ({ ctx, input }) => {
+  const { recipient_id } = input;
+  const { id } = ctx.session.user;
+
+  const newConversationId = createId();
+
+  await ctx.db.insert(conversationSchema).values({ id: newConversationId, latest_message_id: null, user1_id: id, user2_id: recipient_id });
+
+  const createdConversation = await ctx.db.query.conversation.findFirst({
+    where: eq(conversationSchema.id, newConversationId),
+    with: {
+      user1: {
+        columns: {
+          id: true,
+          name: true,
+          username: true,
+          image: true,
+        },
+      },
+      user2: {
+        columns: {
+          id: true,
+          name: true,
+          username: true,
+          image: true,
+        },
+      },
+      latestMessage: true,
+    },
+  });
+
+  if (createdConversation) {
+    return createdConversation;
+  }
+
+  return null;
+});
+
 const getMessages = authedProcedure.input(z.object({ conversation_id: z.string().length(24) })).query(async ({ ctx, input }) => {
   const { conversation_id } = input;
   const { id } = ctx.session.user;
@@ -184,6 +222,7 @@ const chatRouter = createTRPCRouter({
   getConversations,
   getMessages,
   searchUsers,
+  startConversation,
 });
 
 export default chatRouter;

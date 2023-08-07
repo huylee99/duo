@@ -51,10 +51,6 @@ const Nav = () => {
     if (session.data?.user.id) {
       pusherClient.signin();
       const channel = pusherClient.subscribe(session.data?.user.id);
-
-      channel.bind("notification", (data: any) => {
-        console.log(data);
-      });
     }
   }, [session.data?.user.id]);
 
