@@ -1,4 +1,4 @@
-import { MessagesSquare } from "lucide-react";
+import { MessagesSquare, User2 } from "lucide-react";
 import Image from "next/image";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { X, Send, Loader2 } from "lucide-react";
@@ -13,6 +13,10 @@ import { useClickOutside } from "~/hooks/use-click-outside";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
+import { Textarea } from "../ui/textarea";
+import { Label } from "../ui/label";
+
 import useDebounce from "~/hooks/use-debounce";
 
 type Conversation = RouterOutputs["chat"]["getConversations"][number];
@@ -20,6 +24,10 @@ type Message = RouterOutputs["chat"]["getMessages"][number];
 
 const GreenDot = () => {
   return <div className="w-3 h-3 rounded-full bg-green-400 absolute top-0 right-0 shadow-md border border-green-500"></div>;
+};
+
+const RedDot = () => {
+  return <div className="w-3 h-3 rounded-full bg-red-400 absolute top-0 right-0 shadow-md border border-red-500"></div>;
 };
 
 const ChatAvatar: React.FC<{ conversation: Conversation; selectConversation: (conversation_id: string) => void }> = props => {
@@ -35,7 +43,7 @@ const ChatAvatar: React.FC<{ conversation: Conversation; selectConversation: (co
       <Tooltip>
         <TooltipTrigger className="relative">
           <Image onClick={() => selectConversation(conversation.id)} src={otherUser.image} alt="avatar" className="w-11 h-11 rounded-full aspect-square shadow-md" width={44} height={44} unoptimized />
-          <GreenDot />
+          {Number(conversation.unreadCount) > 0 ? <RedDot /> : <GreenDot />}
         </TooltipTrigger>
         <TooltipContent>
           <span>{otherUser.name ?? otherUser.username}</span>
@@ -43,6 +51,46 @@ const ChatAvatar: React.FC<{ conversation: Conversation; selectConversation: (co
       </Tooltip>
     </TooltipProvider>
   );
+};
+
+type SendMessageArgs = {
+  senderId: string;
+  callback?: () => void;
+};
+
+const useSendMessage = ({ senderId, callback }: SendMessageArgs) => {
+  const t = api.useContext();
+  const { isLoading, mutate } = api.chat.sendMessage.useMutation({
+    onMutate: async ({ conversation_id, message, recipient_id }) => {
+      const data = {
+        id: "temporary",
+        sender_id: senderId,
+        recipient_id,
+        conversation_id,
+        message,
+        seen: false,
+        created_at: new Date(),
+      };
+
+      t.chat.getMessages.setData({ conversation_id }, prev => {
+        if (!prev) return [data];
+
+        return [...prev, data];
+      });
+    },
+    onSuccess: data => {
+      if (data) {
+        t.chat.getMessages.setData({ conversation_id: data.conversation_id }, prev => {
+          if (!prev) return [data];
+
+          return prev.map(message => (message.id === "temporary" ? data : message));
+        });
+        callback && callback();
+      }
+    },
+  });
+
+  return { isLoading, mutate };
 };
 
 type ChatPanelProps = {
@@ -56,13 +104,10 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
 
   const [isFocused, setIsFocused] = useState(true);
 
-  console.log(isFocused);
-
   const chatPanelRef = useRef<HTMLDivElement>(null);
   const scrollDownRef = useRef<HTMLDivElement>(null);
 
   const handleOutsideClick = useEvent(() => {
-    console.log("abc");
     setIsFocused(false);
   });
 
@@ -137,7 +182,7 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
 
   return (
     <div
-      onClick={event => {
+      onClick={() => {
         if (Number(conversation.unreadCount) > 0) {
           mutate({ conversation_id: conversation.id, senderId: otherUser.id });
         }
@@ -179,34 +224,7 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
 const SendMessage: React.FC<{ conversation_id: string; isFocused: boolean; recipientId: string; senderId: string }> = props => {
   const t = api.useContext();
   const { isFocused, conversation_id } = props;
-  const { isLoading, mutate } = api.chat.sendMessage.useMutation({
-    onMutate: async ({ conversation_id, message, recipient_id }) => {
-      const data = {
-        id: "temporary",
-        sender_id: props.senderId,
-        recipient_id,
-        conversation_id,
-        message,
-        seen: false,
-        created_at: new Date(),
-      };
-
-      t.chat.getMessages.setData({ conversation_id }, prev => {
-        if (!prev) return [data];
-
-        return [...prev, data];
-      });
-    },
-    onSuccess: data => {
-      if (data) {
-        t.chat.getMessages.setData({ conversation_id: data.conversation_id }, prev => {
-          if (!prev) return [data];
-
-          return prev.map(message => (message.id === "temporary" ? data : message));
-        });
-      }
-    },
-  });
+  const { isLoading, mutate } = useSendMessage({ senderId: props.senderId });
 
   const [message, setMessage] = useState("");
 
@@ -231,13 +249,17 @@ const SendMessage: React.FC<{ conversation_id: string; isFocused: boolean; recip
   );
 };
 
+type SelectedUser = RouterOutputs["chat"]["searchUsers"][number];
+
 const ChatButton = () => {
+  const session = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState("");
-  const [selectedUser, setSelectedUser] = useState<null | string>(null);
-
+  const [message, setMessage] = useState("");
+  const [selectedUser, setSelectedUser] = useState<SelectedUser | null>(null);
   const debouncedValue = useDebounce(value, 400);
 
+  const { isLoading, mutate } = useSendMessage({ senderId: session.data?.user.id!, callback: () => setIsOpen(false) });
   const { data, isFetching, isRefetching } = api.chat.searchUsers.useQuery({ query: debouncedValue }, { enabled: debouncedValue !== "", keepPreviousData: true });
 
   return (
@@ -254,13 +276,27 @@ const ChatButton = () => {
         </DialogHeader>
         <div className="relative">
           <Input value={value} onChange={event => setValue(event.target.value)} placeholder="Tìm kiếm" />
+          {(isFetching || isRefetching) && <Loader2 className="absolute animate-spin w-5 h-5 text-primary/40 right-0 top-1/4 mr-2" />}
         </div>
-        {(isFetching || isRefetching) && <Loader2 className="absolute animate-spin w-5 h-5 text-secondary right-0 top-1/4 mr-2" />}
+        {selectedUser && (
+          <Badge variant="secondary" className="max-w-max space-x-2">
+            <span>{selectedUser.name ?? selectedUser.username}</span> <X className="w-4 h-4 text-primary cursor-pointer" onClick={() => setSelectedUser(null)} />
+          </Badge>
+        )}
+
+        {selectedUser && (
+          <div className="space-y-2">
+            <Label className="text-muted-foreground">Tin nhắn</Label>
+            <Textarea onChange={event => setMessage(event.target.value)} />
+          </div>
+        )}
+
         {data &&
+          !selectedUser &&
           (data.length > 0 ? (
             <div className="flex flex-col space-y-2 my-2">
               {data.map(user => (
-                <div onClick={() => setSelectedUser(user.id)} key={user.id} className={cn("flex items-center cursor-pointer hover:bg-primary-foreground p-2 rounded-lg", selectedUser === user.id && "bg-primary-foreground")}>
+                <div onClick={() => setSelectedUser(user)} key={user.id} className={cn("flex items-center cursor-pointer hover:bg-primary-foreground p-2 rounded-lg")}>
                   <Image src={user.image} alt="avatar" className="w-10 h-10 mr-2 rounded-full aspect-square shadow-md border border-border" width={40} height={40} unoptimized />
                   <div className="flex flex-1 flex-col space-y-0.5">
                     <h3 className="font-medium leading-none text-sm">{user.name ?? user.username}</h3>
@@ -274,7 +310,18 @@ const ChatButton = () => {
           ))}
 
         <DialogFooter>
-          <Button type="submit">Bắt đầu trò chuyện</Button>
+          <Button
+            disabled={isLoading || !selectedUser || message.trim() === ""}
+            onClick={() => {
+              if (message.trim() === "" || isLoading || !selectedUser) return;
+
+              mutate({ conversation_id: "", message: message, recipient_id: selectedUser?.id! });
+            }}
+            type="button"
+          >
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+            Bắt đầu trò chuyện
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -309,6 +356,18 @@ const Chat = () => {
     });
   });
 
+  const newConversation = useEvent(({ conversation }: { conversation: Conversation }) => {
+    t.chat.getConversations.setData(undefined, prev => {
+      if (!prev) return prev;
+
+      return prev.concat(conversation);
+    });
+
+    if (!selectedConversationId) {
+      setSelectedConversationId(conversation.id);
+    }
+  });
+
   const markAsRead = useEvent(({ conversation_id }: { conversation_id: string }) => {
     t.chat.getMessages.setData({ conversation_id }, prev => {
       if (!prev) return prev;
@@ -329,16 +388,16 @@ const Chat = () => {
   });
 
   useEffect(() => {
-    // pusherClient.bind("conversation:update", updateConversation);
     pusherClient.bind("conversation:read", markAsRead);
     pusherClient.bind("conversation:update", updateConversation);
+    pusherClient.bind("conversation:new", newConversation);
 
     return () => {
-      // pusherClient.unbind("conversation:update", updateConversation);
       pusherClient.unbind("conversation:read", markAsRead);
       pusherClient.unbind("conversation:update", updateConversation);
+      pusherClient.unbind("conversation:new", newConversation);
     };
-  }, [markAsRead, updateConversation]);
+  }, [markAsRead, updateConversation, newConversation]);
 
   return (
     <>
