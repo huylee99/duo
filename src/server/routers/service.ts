@@ -29,10 +29,36 @@ const get = authedProcedure.input(z.object({ user_id: z.string().length(24) })).
   return data;
 });
 
+const getServicesByUserId = authedProcedure.input(z.object({ user_id: z.string().length(24) })).query(async ({ ctx, input }) => {
+  const { db } = ctx;
+  const data = await db.query.service.findMany({
+    where: (service, { eq }) => eq(service.user_id, input.user_id),
+  });
+
+  if (!data) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Không tìm thấy dữ liệu" });
+  }
+
+  return data;
+});
+
 const getMany = authedProcedure.query(async ({ ctx }) => {
   const { db } = ctx;
   const data = await db.query.service.findMany({
     where: (service, { eq }) => eq(service.user_id, ctx.session.user.id),
+  });
+
+  if (!data) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Không tìm thấy dữ liệu" });
+  }
+
+  return data;
+});
+
+const getManyByUsername = authedProcedure.input(z.object({ username: z.string() })).query(async ({ ctx, input }) => {
+  const { db } = ctx;
+  const data = await db.query.service.findMany({
+    where: (service, { eq }) => eq(service.user_id, input.username),
   });
 
   if (!data) {
@@ -69,6 +95,8 @@ const serviceRouter = createTRPCRouter({
   getMany,
   update,
   remove,
+  getServicesByUserId,
+  getManyByUsername,
 });
 
 export default serviceRouter;

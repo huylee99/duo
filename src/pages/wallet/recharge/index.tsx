@@ -51,8 +51,8 @@ const Recharge: NextPageWithLayout = () => {
       </div>
 
       <h2 className="text-xl font-medium text-primary mb-1">Số tiền</h2>
-      <p className="text-muted-foreground mb-6">Chọn mức tiền cần nạp ngay bên dưới</p>
-      <div className="flex items-center space-x-4 my-6">
+      <p className="text-muted-foreground mb-4">Chọn mức tiền cần nạp ngay bên dưới</p>
+      <div className="flex items-center space-x-4 mb-4">
         {AMOUNTS.map(value => (
           <div
             key={value}
@@ -69,7 +69,7 @@ const Recharge: NextPageWithLayout = () => {
         ))}
       </div>
       <div className="mb-16">
-        <p className="text-muted-foreground mb-6">Hoặc nhập số tiền tùy ý</p>
+        <p className="text-muted-foreground mb-4">Hoặc nhập số tiền tùy ý</p>
         <Input
           onClick={() => {
             setPriceType("custom");

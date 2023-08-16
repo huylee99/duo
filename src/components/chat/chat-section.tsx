@@ -1,4 +1,4 @@
-import { MessagesSquare, User2 } from "lucide-react";
+import { MessagesSquare } from "lucide-react";
 import Image from "next/image";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { X, Send, Loader2 } from "lucide-react";
@@ -23,11 +23,11 @@ type Conversation = RouterOutputs["chat"]["getConversations"][number];
 type Message = RouterOutputs["chat"]["getMessages"][number];
 
 const GreenDot = () => {
-  return <div className="w-3 h-3 rounded-full bg-green-400 absolute top-0 right-0 shadow-md border border-green-500"></div>;
+  return <div className="w-3 h-3 rounded-full bg-green-500 absolute right-0 bottom-0 shadow-md border"></div>;
 };
 
-const RedDot = () => {
-  return <div className="w-3 h-3 rounded-full bg-red-400 absolute top-0 right-0 shadow-md border border-red-500"></div>;
+const RedDot = (props: { unreadCount: number }) => {
+  return <div className="w-4 h-4 rounded-full bg-red-500 absolute top-0 right-0 shadow-md border flex items-center justify-center text-[11px]">{props.unreadCount}</div>;
 };
 
 const ChatAvatar: React.FC<{ conversation: Conversation; selectConversation: (conversation_id: string) => void }> = props => {
@@ -43,7 +43,8 @@ const ChatAvatar: React.FC<{ conversation: Conversation; selectConversation: (co
       <Tooltip>
         <TooltipTrigger className="relative">
           <Image onClick={() => selectConversation(conversation.id)} src={otherUser.image} alt="avatar" className="w-11 h-11 rounded-full aspect-square shadow-md" width={44} height={44} unoptimized />
-          {Number(conversation.unreadCount) > 0 ? <RedDot /> : <GreenDot />}
+          <GreenDot />
+          {Number(conversation.unreadCount) > 0 && <RedDot unreadCount={conversation.unreadCount} />}
         </TooltipTrigger>
         <TooltipContent>
           <span>{otherUser.name ?? otherUser.username}</span>
@@ -188,7 +189,7 @@ const ChatPanel: React.FC<ChatPanelProps> = props => {
         }
         setIsFocused(true);
       }}
-      className="w-[336px] h-[432px] bg-primary-foreground rounded-t-lg shadow-md flex flex-col"
+      className="w-[448px] h-[432px] bg-primary-foreground rounded-t-lg shadow-md flex flex-col"
       ref={chatPanelRef}
     >
       <div className="p-4 flex items-center justify-between border-b border-border/40 flex-1">
