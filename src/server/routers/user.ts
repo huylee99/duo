@@ -1,6 +1,6 @@
 import { authedProcedure, createTRPCRouter } from "../trpc";
 import { updateSingleImageValidatorSchema, updateUsernameValidatorSchema, updateProfileValidatorSchema, updateSocialsValidatorSchema, updateLongBioValidatorSchema } from "~/shared/validators/update-profile-validator";
-import { user as userSchema } from "../db/schema";
+import { user as userSchema, rating as ratingSchema, service as serviceSchema } from "../db/schema";
 import { eq, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import * as z from "zod";
@@ -26,6 +26,23 @@ const getUsers = authedProcedure.input(z.object({ pageSize: z.number(), pageIdx:
   const pageCount = Math.ceil(total[0].count / input.pageSize);
 
   return { users, total: total[0].count, pageCount };
+});
+
+const getUserByUsername = authedProcedure.input(z.object({ username: z.string() })).query(async ({ ctx, input }) => {
+  const { db } = ctx;
+
+  const user = await db.query.user.findFirst({
+    where: (user, { eq }) => eq(user.username, input.username),
+    with: {
+      services: true,
+    },
+  });
+
+  if (!user) {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Không tìm thấy người dùng." });
+  }
+
+  return user;
 });
 
 const updateAvatar = authedProcedure.input(updateSingleImageValidatorSchema).mutation(async ({ ctx, input }) => {
@@ -107,6 +124,7 @@ const user = createTRPCRouter({
   updateSocials,
   updateLongBio,
   getUsers,
+  getUserByUsername,
 });
 
 export default user;

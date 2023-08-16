@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import TransactionHistoryTable from "~/components/wallet/transaction-history-table";
 import LineChart from "~/components/common/chart";
 import { ParentSize } from "@visx/responsive";
+import Link from "next/link";
 
 const Wallet: NextPageWithLayout = () => {
   return (
@@ -22,8 +23,8 @@ const Wallet: NextPageWithLayout = () => {
             </div>
             <div className="flex items-center justify-between w-full">
               <span className="text-muted-foreground">12%</span>
-              <Button className="bg-pink-600 text-white hover:bg-pink-700" size={"lg"}>
-                Nạp thêm
+              <Button className="bg-pink-600 text-white hover:bg-pink-700" size={"lg"} asChild>
+                <Link href={"/wallet/recharge"}>Nạp thêm</Link>
               </Button>
             </div>
           </div>

@@ -56,7 +56,7 @@ const ServiceForm = (props: ServiceFormProps) => {
             <FormItem>
               <FormLabel>Tên dịch vụ</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Nhập tên dịch vụ" />
+                <Input {...field} placeholder="Nhập tên dịch vụ" autoComplete="none" />
               </FormControl>
             </FormItem>
           )}
@@ -89,7 +89,7 @@ const ServiceForm = (props: ServiceFormProps) => {
                     const value = event.target.value === "" ? 0 : Number.parseInt(event.target.value);
                     field.onChange(value);
                   }}
-                  value={String(field.value ?? 0)}
+                  value={field.value ?? 0}
                   placeholder="Ví dụ: 50000"
                 />
               </FormControl>
