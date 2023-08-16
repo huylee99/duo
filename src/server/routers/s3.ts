@@ -11,7 +11,7 @@ const createPresignedURLs = authedProcedure.input(presignedURLsSchema).mutation(
   });
 
   try {
-    const presignURLs = await Promise.allSettled(presignedURLSPromises);
+    const presignURLs = await Promise.all(presignedURLSPromises);
 
     return presignURLs;
   } catch (error) {
