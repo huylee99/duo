@@ -90,7 +90,7 @@ const getConversations = authedProcedure.query(async ({ ctx }) => {
       latest_message: {
         id: messageSchema.id,
         message: messageSchema.message,
-        created_at: messageSchema.createdAt,
+        created_at: messageSchema.created_at,
         seen: messageSchema.seen,
       },
       user1: {
@@ -112,35 +112,9 @@ const getConversations = authedProcedure.query(async ({ ctx }) => {
     .innerJoin(user1, eq(conversationSchema.user1_id, user1.id))
     .innerJoin(user2, eq(conversationSchema.user2_id, user2.id))
     .leftJoin(messageSchema, eq(conversationSchema.latest_message_id, messageSchema.id))
-    .groupBy(conversationSchema.id, messageSchema.recipient_id, user1.id, user2.id, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.createdAt, user1.name, user1.username, user1.image, user2.name, user2.username, user2.image, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.createdAt)
+    .groupBy(conversationSchema.id, messageSchema.recipient_id, user1.id, user2.id, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.created_at, user1.name, user1.username, user1.image, user2.name, user2.username, user2.image, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.created_at)
     .where(or(eq(conversationSchema.user1_id, id), eq(conversationSchema.user2_id, id)))
     .orderBy(desc(conversationSchema.updated_at));
-
-  //   const conversations = await ctx.db.query.conversation.findMany({
-  //     extras: {
-  //       unreadCount: sql<number>`sum(case when ${messageSchema.seen} = false and ${messageSchema.recipient_id} = ${id} then 1 else 0 end)`.as("unreadCount"),
-  //     },
-  //     with: {
-  //       user1: {
-  //         columns: {
-  //           id: true,
-  //           name: true,
-  //           username: true,
-  //           image: true,
-  //         },
-  //       },
-  //       user2: {
-  //         columns: {
-  //           id: true,
-  //           name: true,
-  //           username: true,
-  //           image: true,
-  //         },
-  //       },
-  //       latestMessage: true,
-  //     },
-  //     orderBy: (conversationSchema, { desc }) => [desc(conversationSchema.updated_at)],
-  //   });
 
   return conversations;
 });
@@ -189,7 +163,7 @@ const getMessages = authedProcedure.input(z.object({ conversation_id: z.string()
 
   const messages = await ctx.db.query.message.findMany({
     where: eq(messageSchema.conversation_id, conversation_id),
-    orderBy: (messageSchema, { asc }) => [asc(messageSchema.createdAt)],
+    orderBy: (messageSchema, { asc }) => [asc(messageSchema.created_at)],
   });
 
   await ctx.db

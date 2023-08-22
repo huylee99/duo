@@ -75,7 +75,7 @@ export const transaction = mysqlTable(
     payment_method: varchar("payment_method", { enum: ["momo", "bank", "qrCode"], length: 8 }).notNull(),
     status: varchar("status", { enum: ["pending", "completed", "failed"], length: 10 }).notNull(),
     updated_at: timestamp("updated_at").onUpdateNow(),
-    createdAt: timestamp("created_at")
+    created_at: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
   },
@@ -131,7 +131,7 @@ export const service = mysqlTable("service", {
     .default("all-day"),
   start_time: int("start_time"),
   end_time: int("end_time"),
-  createdAt: timestamp("created_at")
+  created_at: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
@@ -152,7 +152,7 @@ export const order = mysqlTable(
     total_service_requested: int("total_service_requested").notNull(),
     order_status: varchar("status", { enum: ["pending", "accepted", "rejected", "completed"], length: 8 }).notNull(),
     payment_status: varchar("payment_status", { enum: ["pending", "paid", "refunded"], length: 8 }).notNull(),
-    createdAt: timestamp("created_at")
+    created_at: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updated_at: timestamp("updated_at").onUpdateNow(),
@@ -171,7 +171,7 @@ export const rating = mysqlTable("rating", {
   rating: int("rating").notNull(),
   comment: varchar("comment", { length: 191 }),
   is_deleted: boolean("is_deleted").notNull(),
-  createdAt: timestamp("created_at")
+  created_at: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
@@ -182,7 +182,7 @@ export const conversation = mysqlTable("conversation", {
   user2_id: varchar("user2_id", { length: 24 }).notNull(),
   latest_message_id: varchar("latest_message_id", { length: 24 }),
   updated_at: timestamp("updated_at").onUpdateNow(),
-  createdAt: timestamp("created_at")
+  created_at: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
@@ -194,7 +194,7 @@ export const message = mysqlTable("message", {
   recipient_id: varchar("recipient_id", { length: 24 }).notNull(),
   seen: boolean("seen").notNull().default(false),
   message: varchar("message", { length: 191 }).notNull(),
-  createdAt: timestamp("created_at")
+  created_at: timestamp("created_at")
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
