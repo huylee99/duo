@@ -14,11 +14,11 @@ const DeleteService = (props: DeleteServiceProps) => {
   const { setOpen, isOpen, id } = props;
   const utils = api.useContext();
 
-  const { mutate, isLoading } = api.discount.remove.useMutation({
+  const { mutate, isLoading } = api.service.remove.useMutation({
     onSuccess: id => {
-      utils.discount.getMany.setData(undefined, old => {
+      utils.service.getMany.setData(undefined, old => {
         if (old) {
-          return old.filter(discount => discount.id !== id);
+          return old.filter(service => service.id !== id);
         }
         return old;
       });
