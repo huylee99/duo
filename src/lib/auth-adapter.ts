@@ -1,6 +1,6 @@
 import type { Adapter } from "next-auth/adapters";
 import type { PlanetScaleDatabase } from "drizzle-orm/planetscale-serverless";
-import { user, account, session, verificationToken } from "~/server/db/schema";
+import { user, account, session, verificationToken, wallet } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import * as schema from "../server/db/schema";
 import { createId } from "@paralleldrive/cuid2";
@@ -9,15 +9,23 @@ export function DrizzleAdapter(db: PlanetScaleDatabase<typeof schema>): Adapter 
   return {
     createUser: async data => {
       const username = data.email.split("@")[0];
+      const userId = createId();
 
       await db.insert(user).values({
         email: data.email,
         emailVerified: data.emailVerified,
         image: `https://avatars.dicebear.com/api/micah/${data.name || data.email}.svg`,
         name: data.name,
-        id: createId(),
+        id: userId,
         username,
       });
+
+      await db.insert(wallet).values({
+        balance: 0,
+        id: createId(),
+        user_id: userId,
+      });
+
       const rows = await db.select().from(user).where(eq(user.email, data.email)).limit(1);
 
       if (!rows[0]) {

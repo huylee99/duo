@@ -42,7 +42,7 @@ const sendMessage = authedProcedure.input(chatValidatorRequestSchema).mutation(a
     });
 
     if (createdConversation) {
-      await Promise.allSettled([pusherServer.sendToUser(recipient_id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 1 } }), pusherServer.sendToUser(id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 0 } })]);
+      await Promise.all([pusherServer.sendToUser(recipient_id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 1 } }), pusherServer.sendToUser(id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 0 } })]);
     }
 
     conversationId = newConversationId;
@@ -90,7 +90,7 @@ const getConversations = authedProcedure.query(async ({ ctx }) => {
       latest_message: {
         id: messageSchema.id,
         message: messageSchema.message,
-        created_at: messageSchema.created_at,
+        created_at: messageSchema.createdAt,
         seen: messageSchema.seen,
       },
       user1: {
@@ -112,7 +112,7 @@ const getConversations = authedProcedure.query(async ({ ctx }) => {
     .innerJoin(user1, eq(conversationSchema.user1_id, user1.id))
     .innerJoin(user2, eq(conversationSchema.user2_id, user2.id))
     .leftJoin(messageSchema, eq(conversationSchema.latest_message_id, messageSchema.id))
-    .groupBy(conversationSchema.id, messageSchema.recipient_id, user1.id, user2.id, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.created_at, user1.name, user1.username, user1.image, user2.name, user2.username, user2.image, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.created_at)
+    .groupBy(conversationSchema.id, messageSchema.recipient_id, user1.id, user2.id, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.createdAt, user1.name, user1.username, user1.image, user2.name, user2.username, user2.image, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.createdAt)
     .where(or(eq(conversationSchema.user1_id, id), eq(conversationSchema.user2_id, id)))
     .orderBy(desc(conversationSchema.updated_at));
 
@@ -189,7 +189,7 @@ const getMessages = authedProcedure.input(z.object({ conversation_id: z.string()
 
   const messages = await ctx.db.query.message.findMany({
     where: eq(messageSchema.conversation_id, conversation_id),
-    orderBy: (messageSchema, { asc }) => [asc(messageSchema.created_at)],
+    orderBy: (messageSchema, { asc }) => [asc(messageSchema.createdAt)],
   });
 
   await ctx.db

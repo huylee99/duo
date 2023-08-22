@@ -9,14 +9,30 @@ import { Input } from "~/components/ui/input";
 import { useState } from "react";
 import { cn } from "~/lib/utils";
 import { formatPrice } from "~/utils/format-price";
+import { api } from "~/server/utils/api";
+import { useRouter } from "next/router";
 
 const AMOUNTS = [20000, 50000, 100000, 200000, 500000];
 
 const Recharge: NextPageWithLayout = () => {
-  const [paymentMethod, setPaymentMethod] = useState<"bank" | "momo" | "qrcode">();
+  const router = useRouter();
+  const [paymentMethod, setPaymentMethod] = useState<"bank" | "momo" | "qrCode">();
   const [amount, setAmount] = useState<number>();
   const [customAmount, setCustomAmount] = useState<number>();
   const [priceType, setPriceType] = useState<"custom" | "preset">();
+  const { isLoading, mutate } = api.wallet.recharge.useMutation({
+    onSuccess: () => {
+      router.push("/wallet/transaction");
+    },
+  });
+
+  const handleRecharge = () => {
+    if (!amount || !paymentMethod) {
+      return;
+    }
+
+    mutate({ amount: amount, payment_method: paymentMethod, type: "deposit" });
+  };
 
   return (
     <div className="px-8 mx-auto max-w-4xl my-16">
@@ -40,7 +56,7 @@ const Recharge: NextPageWithLayout = () => {
             <Image src={"/momo.svg"} width={24} height={24} className="w-6 h-6  aspect-square rounded-sm object-contain" alt="momo" unoptimized />
           </div>
         </div>
-        <div className={cn("p-4 rounded-md flex flex-col border-2 border-border space-y-8 cursor-pointer max-w-[260px] w-full", paymentMethod === "qrcode" && "border-pink-500")} onClick={() => setPaymentMethod("qrcode")}>
+        <div className={cn("p-4 rounded-md flex flex-col border-2 border-border space-y-8 cursor-pointer max-w-[260px] w-full", paymentMethod === "qrCode" && "border-pink-500")} onClick={() => setPaymentMethod("qrCode")}>
           <h3>Thanh toán bằng mã QR</h3>
 
           <div className="flex items-center justify-between">
@@ -81,9 +97,8 @@ const Recharge: NextPageWithLayout = () => {
           placeholder="Số tiền cần nạp"
         />
       </div>
-
       <div className="flex justify-end mt-auto">
-        <Button size="lg" className="text-base h-12 w-36">
+        <Button onClick={handleRecharge} disabled={isLoading} size="lg" className="text-base h-12 w-36">
           Nạp tiền
         </Button>
       </div>

@@ -1,22 +1,19 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet";
 import useToggle from "~/hooks/use-toggle";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { AlertCircle, ChevronsUpDown, Check } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { api } from "~/server/utils/api";
 import { Button } from "../ui/button";
 import React, { useState } from "react";
-import { RouterOutputs } from "~/server/utils/api";
-import { cn } from "~/lib/utils";
 import { formatPrice } from "~/utils/format-price";
-import { Input } from "../ui/input";
+import Link from "next/link";
+import toast from "react-hot-toast";
 
 type HireProps = {
   userId: string;
 };
-
-type Service = RouterOutputs["service"]["getServicesByUserId"][number];
 
 type OrderData = {
   service_id: string;
@@ -27,13 +24,35 @@ type OrderData = {
 };
 
 const Hire: React.FC<HireProps> = ({ userId }) => {
-  const [orderData, setOrderData] = useState<OrderData>({ service_id: "", partner_id: userId, amount: 0, price: 0 });
-  const { onChange: onOpenSideBarChange, value: isSideBarOpen } = useToggle();
+  const defaultValues: OrderData = { service_id: "", partner_id: userId, amount: 0, price: 0 };
+  const [orderData, setOrderData] = useState<OrderData>(defaultValues);
+  const { onChange: onOpenSideBarChange, value: isSideBarOpen, onClose } = useToggle();
   const { data, isLoading } = api.service.getServicesByUserId.useQuery({ user_id: userId }, { enabled: isSideBarOpen });
+  const { data: balanceData, isLoading: isBalanceLoading } = api.wallet.getBalance.useQuery(undefined, { enabled: isSideBarOpen, refetchOnWindowFocus: true });
+  const { mutate, isLoading: isMutationLoading } = api.order.create.useMutation({
+    onSuccess: () => {
+      toast.success("Đã gửi yêu cầu thuê người chơi thành công. Vui lòng chờ người chơi phản hồi.");
+      setOrderData(defaultValues);
+      onClose();
+    },
+  });
 
   const selectedService = data?.find(service => service.id === orderData.service_id);
 
-  console.log(orderData);
+  const isEligibleToHire = selectedService && orderData.amount > 0 && balanceData && balanceData.balance >= orderData.price && orderData.service_id !== "";
+
+  const handleHire = () => {
+    if (!isEligibleToHire) {
+      return;
+    }
+
+    mutate({
+      partner_id: orderData.partner_id,
+      service_id: orderData.service_id,
+      total_amount: orderData.price,
+      total_service_requested: orderData.amount,
+    });
+  };
 
   return (
     <>
@@ -108,30 +127,40 @@ const Hire: React.FC<HireProps> = ({ userId }) => {
                 </div>
               )}
 
-              <div className="my-2 w-full border-t border-t-muted"></div>
               {selectedService && orderData.amount > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Giá tiền</span>
-                    <span className="text-primary font-medium text-lg">{formatPrice(orderData.price)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Mã giảm giá</span>
-                    <div className="text-right space-x-2 flex items-center">
-                      <Input className="max-w-[128px] h-10 uppercase" />
-                      <Button size={"sm"}>Áp dụng</Button>
+                <>
+                  <div className="my-2 w-full border-t border-t-muted"></div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Giá tiền</span>
+                      <span className="text-primary font-medium text-lg">{formatPrice(orderData.price)}</span>
                     </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Số tiền cần thanh toán</span>
+                      <span className="text-primary font-medium text-lg">{formatPrice(orderData.price)}</span>
+                    </div>
+                    {!isBalanceLoading && balanceData && (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Số dư trong ví</span>
+                          <span className="text-primary font-medium text-lg">{formatPrice(balanceData.balance)}</span>
+                        </div>
+                        <div className="flex items-center justify-end">
+                          <Link target="_blank" href={"/wallet/recharge"}>
+                            <Button size="sm">Nạp thêm</Button>
+                          </Link>
+                        </div>
+                      </>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Số tiền cần thanh toán</span>
-                    <span className="text-primary font-medium text-lg">{formatPrice(orderData.price)}</span>
-                  </div>
-                </div>
+                  <div className="my-2 w-full border-t border-t-muted"></div>
+                  <Button onClick={handleHire} disabled={!isEligibleToHire || isMutationLoading} className="w-full text-base bg-pink-800 hover:bg-pink-900 text-white" size="lg">
+                    {isMutationLoading && <Loader2 className="animate-spin mr-2 w-4 h-4" />}
+                    Thuê
+                  </Button>
+                </>
               )}
-              <div className="my-2 w-full border-t border-t-muted"></div>
-              <Button className="w-full text-lg bg-pink-800 hover:bg-pink-900 text-white" size="lg">
-                Thanh toán
-              </Button>
             </div>
           )}
         </SheetContent>

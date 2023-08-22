@@ -29,19 +29,22 @@ const App = ({ Component, pageProps, session }: AppPropsWithLayout) => {
       <ReactQueryDevtools initialIsOpen={true} />
       <main className={inter.className}>
         <SessionProvider session={pageProps.session || session} refetchOnWindowFocus={false}>
-          <ThemeProvider attribute="class">{getLayout(<Component {...pageProps} />)}</ThemeProvider>
+          <ThemeProvider attribute="class">
+            {getLayout(<Component {...pageProps} />)}
+            <Toaster
+              position="top-center"
+              reverseOrder={false}
+              toastOptions={{
+                className: "text-sm shadow-md",
+                duration: 4000,
+                style: {
+                  background: "#333",
+                  color: "#fff",
+                },
+              }}
+            />
+          </ThemeProvider>
         </SessionProvider>
-        <Toaster
-          position="top-center"
-          reverseOrder={false}
-          toastOptions={{
-            className: "font-medium text-sm shadow-md",
-            duration: 4000,
-            style: {
-              color: "black",
-            },
-          }}
-        />
       </main>
     </>
   );

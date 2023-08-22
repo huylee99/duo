@@ -50,25 +50,29 @@ export type InsertRequest = z.infer<typeof insertServiceRequestSchema>;
 
 // discounts schema
 
-const discountValidatorSchema = createInsertSchema(schema.discount, {
-  discount_percent: z.number().int().min(5).max(100),
-  is_active: z.boolean(),
-});
+// const discountValidatorSchema = createInsertSchema(schema.discount, {
+//   discount_percent: z.number().int().min(5).max(100),
+//   is_active: z.boolean(),
+// });
 
-export const insertDiscountRequestSchema = discountValidatorSchema.pick({
-  discount_percent: true,
-  is_active: true,
-  start_date: true,
-  end_date: true,
-  apply_schedule: true,
-});
+// export const insertDiscountRequestSchema = discountValidatorSchema.pick({
+//   discount_percent: true,
+//   is_active: true,
+//   start_date: true,
+//   end_date: true,
+//   apply_schedule: true,
+// });
 
-export type InsertDiscountRequest = z.infer<typeof insertDiscountRequestSchema>;
+// export type InsertDiscountRequest = z.infer<typeof insertDiscountRequestSchema>;
 
 // wallet schema
 
 export const rechargeValidatorRequestSchema = createInsertSchema(schema.transaction, {
   amount: z.number().int().min(10000).max(1000000),
+}).pick({
+  amount: true,
+  payment_method: true,
+  type: true,
 });
 
 // chat schema
@@ -81,4 +85,19 @@ export const chatValidatorRequestSchema = createInsertSchema(schema.message, {
   conversation_id: true,
   message: true,
   recipient_id: true,
+});
+
+// order schema
+
+export const orderValidatorSchema = createInsertSchema(schema.order, {
+  service_id: z.string().length(24),
+  total_amount: z.number().int(),
+  user_id: z.string().length(24),
+  partner_id: z.string().length(24),
+  total_service_requested: z.number().int().min(1),
+}).pick({
+  service_id: true,
+  total_amount: true,
+  partner_id: true,
+  total_service_requested: true,
 });

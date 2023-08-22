@@ -20,6 +20,7 @@ declare module "next-auth" {
   interface User extends DefaultUser {
     role: ROLE;
     isBanned: boolean;
+    username: string;
   }
 
   interface Session extends DefaultSession {
@@ -27,6 +28,7 @@ declare module "next-auth" {
       role: ROLE;
       id: string;
       isBanned: boolean;
+      username: string;
     } & DefaultSession["user"];
   }
 }
@@ -94,7 +96,15 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (trigger === "update") {
-        session.user = existedUser;
+        session.user = {
+          id: existedUser.id,
+          role: existedUser.role,
+          isBanned: existedUser.isBanned,
+          email: existedUser.email,
+          image: existedUser.image,
+          name: existedUser.name,
+          username: existedUser.username,
+        };
       }
 
       if (user) {
