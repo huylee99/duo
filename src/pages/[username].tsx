@@ -50,8 +50,8 @@ const Profile: NextPageWithLayout = () => {
 
             <div className="bg-primary-foreground px-8 rounded-b-lg shadow-sm">
               <div className="relative flex gap-4 border-b border-b-border">
-                <div className="relative w-[184px] h-[184px] rounded-full -top-6 border-4 border-primary-foreground flex-shrink-0">
-                  <Image src={"/avatar.jpg"} alt="avatar" className="aspect-square object-cover rounded-full" fill unoptimized />
+                <div className="relative w-[184px] h-[184px] bg-secondary rounded-full -top-6 border-4 border-primary-foreground flex-shrink-0">
+                  <Image src={data.image} alt="avatar" className="aspect-square object-cover rounded-full" fill unoptimized />
                   <div className="w-8 h-8 rounded-full bg-green-500 absolute bottom-2 right-2 border-4 border-primary-foreground"></div>
                 </div>
                 <div className="py-8 flex justify-between w-full">

@@ -42,7 +42,7 @@ const sendMessage = authedProcedure.input(chatValidatorRequestSchema).mutation(a
     });
 
     if (createdConversation) {
-      await Promise.allSettled([pusherServer.sendToUser(recipient_id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 1 } }), pusherServer.sendToUser(id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 0 } })]);
+      await Promise.all([pusherServer.sendToUser(recipient_id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 1 } }), pusherServer.sendToUser(id, "conversation:new", { conversation: { ...createdConversation, unreadCount: 0 } })]);
     }
 
     conversationId = newConversationId;
@@ -115,32 +115,6 @@ const getConversations = authedProcedure.query(async ({ ctx }) => {
     .groupBy(conversationSchema.id, messageSchema.recipient_id, user1.id, user2.id, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.created_at, user1.name, user1.username, user1.image, user2.name, user2.username, user2.image, messageSchema.seen, messageSchema.id, messageSchema.message, messageSchema.created_at)
     .where(or(eq(conversationSchema.user1_id, id), eq(conversationSchema.user2_id, id)))
     .orderBy(desc(conversationSchema.updated_at));
-
-  //   const conversations = await ctx.db.query.conversation.findMany({
-  //     extras: {
-  //       unreadCount: sql<number>`sum(case when ${messageSchema.seen} = false and ${messageSchema.recipient_id} = ${id} then 1 else 0 end)`.as("unreadCount"),
-  //     },
-  //     with: {
-  //       user1: {
-  //         columns: {
-  //           id: true,
-  //           name: true,
-  //           username: true,
-  //           image: true,
-  //         },
-  //       },
-  //       user2: {
-  //         columns: {
-  //           id: true,
-  //           name: true,
-  //           username: true,
-  //           image: true,
-  //         },
-  //       },
-  //       latestMessage: true,
-  //     },
-  //     orderBy: (conversationSchema, { desc }) => [desc(conversationSchema.updated_at)],
-  //   });
 
   return conversations;
 });
