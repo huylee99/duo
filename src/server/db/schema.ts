@@ -202,7 +202,8 @@ export const message = mysqlTable("message", {
 export const userRelations = relations(user, ({ many, one }) => ({
   accounts: many(account),
   sessions: many(session),
-  orders: many(order),
+  user_orders: many(order, { relationName: "user_order" }),
+  partner_orders: many(order, { relationName: "partner_order" }),
   services: many(service),
   ratings: many(rating),
   wallet: one(wallet),
@@ -259,10 +260,15 @@ export const conversationRelations = relations(conversation, ({ one, many }) => 
 
 export const orderRelations = relations(order, ({ one }) => ({
   user: one(user, {
-    fields: [order.user_id, order.partner_id],
-    references: [user.id, user.id],
+    relationName: "user_order",
+    fields: [order.user_id],
+    references: [user.id],
   }),
-
+  partner: one(user, {
+    relationName: "partner_order",
+    fields: [order.partner_id],
+    references: [user.id],
+  }),
   service: one(service, {
     fields: [order.service_id],
     references: [service.id],
