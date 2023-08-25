@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { formatPrice } from "~/utils/format-price";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useRouter } from "next/router";
 
 type HireProps = {
   userId: string;
@@ -24,16 +25,22 @@ type OrderData = {
 };
 
 const Hire: React.FC<HireProps> = ({ userId }) => {
+  const router = useRouter();
   const defaultValues: OrderData = { service_id: "", partner_id: userId, amount: 0, price: 0 };
   const [orderData, setOrderData] = useState<OrderData>(defaultValues);
   const { onChange: onOpenSideBarChange, value: isSideBarOpen, onClose } = useToggle();
   const { data, isLoading } = api.service.getServicesByUserId.useQuery({ user_id: userId }, { enabled: isSideBarOpen });
   const { data: balanceData, isLoading: isBalanceLoading } = api.wallet.getBalance.useQuery(undefined, { enabled: isSideBarOpen, refetchOnWindowFocus: true });
   const { mutate, isLoading: isMutationLoading } = api.order.create.useMutation({
-    onSuccess: () => {
+    onSuccess: ({ id }) => {
       toast.success("Đã gửi yêu cầu thuê người chơi thành công. Vui lòng chờ người chơi phản hồi.");
       setOrderData(defaultValues);
       onClose();
+
+      router.push(`/duo/${id}`);
+    },
+    onError: error => {
+      toast.error(error.message);
     },
   });
 

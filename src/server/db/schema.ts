@@ -1,5 +1,5 @@
 import { mysqlTable, varchar, int, text, uniqueIndex, index, timestamp, primaryKey, boolean } from "drizzle-orm/mysql-core";
-import { relations, InferModel, sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const user = mysqlTable(
   "users",
@@ -29,9 +29,9 @@ export const user = mysqlTable(
   }
 );
 
-export type User = InferModel<typeof user, "select">;
+export type User = typeof user.$inferSelect;
 
-export type ROLE = InferModel<typeof user, "select">["role"];
+export type ROLE = User["role"];
 
 export const account = mysqlTable(
   "accounts",
@@ -136,7 +136,7 @@ export const service = mysqlTable("service", {
     .notNull(),
 });
 
-export type Service = InferModel<typeof service, "select">;
+export type Service = typeof service.$inferSelect;
 
 export const order = mysqlTable(
   "order",
@@ -202,7 +202,8 @@ export const message = mysqlTable("message", {
 export const userRelations = relations(user, ({ many, one }) => ({
   accounts: many(account),
   sessions: many(session),
-  orders: many(order),
+  user_orders: many(order, { relationName: "user_order" }),
+  partner_orders: many(order, { relationName: "partner_order" }),
   services: many(service),
   ratings: many(rating),
   wallet: one(wallet),
@@ -259,10 +260,15 @@ export const conversationRelations = relations(conversation, ({ one, many }) => 
 
 export const orderRelations = relations(order, ({ one }) => ({
   user: one(user, {
-    fields: [order.user_id, order.partner_id],
-    references: [user.id, user.id],
+    relationName: "user_order",
+    fields: [order.user_id],
+    references: [user.id],
   }),
-
+  partner: one(user, {
+    relationName: "partner_order",
+    fields: [order.partner_id],
+    references: [user.id],
+  }),
   service: one(service, {
     fields: [order.service_id],
     references: [service.id],

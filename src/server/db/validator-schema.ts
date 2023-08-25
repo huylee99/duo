@@ -1,11 +1,13 @@
 import * as schema from "./schema";
 import { z } from "zod";
-import { createInsertSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 const serviceValidatorSchema = createInsertSchema(schema.service, {
   service_name: z.string().min(2).max(191),
   minimum_hour: z.number().int().min(1).max(5),
   service_price: z.number().int().min(5000).max(1000000),
+  start_time: z.number().int().min(0).max(23),
+  end_time: z.number().int().min(0).max(23),
 });
 
 export const insertServiceRequestSchema = serviceValidatorSchema.pick({
@@ -46,7 +48,12 @@ export const insertServiceFormValidator = insertServiceRequestSchema
     }
   );
 
+export type Order = typeof schema.order.$inferSelect;
+export type Service = typeof schema.service.$inferSelect;
 export type InsertRequest = z.infer<typeof insertServiceRequestSchema>;
+export type ServiceUnit = Service["unit"];
+export type PaymentStatus = Order["payment_status"];
+export type OrderStatus = Order["order_status"];
 
 // discounts schema
 
@@ -101,3 +108,7 @@ export const orderValidatorSchema = createInsertSchema(schema.order, {
   partner_id: true,
   total_service_requested: true,
 });
+
+export const getOrderByIdValidatorSchema = createSelectSchema(schema.order, {
+  id: z.string().length(24),
+}).pick({ id: true });
