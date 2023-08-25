@@ -1,5 +1,5 @@
 import { mysqlTable, varchar, int, text, uniqueIndex, index, timestamp, primaryKey, boolean } from "drizzle-orm/mysql-core";
-import { relations, InferModel, sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const user = mysqlTable(
   "users",
@@ -29,9 +29,9 @@ export const user = mysqlTable(
   }
 );
 
-export type User = InferModel<typeof user, "select">;
+export type User = typeof user.$inferSelect;
 
-export type ROLE = InferModel<typeof user, "select">["role"];
+export type ROLE = User["role"];
 
 export const account = mysqlTable(
   "accounts",
@@ -136,7 +136,7 @@ export const service = mysqlTable("service", {
     .notNull(),
 });
 
-export type Service = InferModel<typeof service, "select">;
+export type Service = typeof service.$inferSelect;
 
 export const order = mysqlTable(
   "order",

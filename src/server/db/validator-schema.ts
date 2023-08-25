@@ -6,6 +6,8 @@ const serviceValidatorSchema = createInsertSchema(schema.service, {
   service_name: z.string().min(2).max(191),
   minimum_hour: z.number().int().min(1).max(5),
   service_price: z.number().int().min(5000).max(1000000),
+  start_time: z.number().int().min(0).max(23),
+  end_time: z.number().int().min(0).max(23),
 });
 
 export const insertServiceRequestSchema = serviceValidatorSchema.pick({
