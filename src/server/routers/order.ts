@@ -1,9 +1,10 @@
 import { createTRPCRouter, authedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { order as orderSchema, wallet as walletSchema } from "../db/schema";
+import { order as orderSchema, wallet as walletSchema, notification as notificationSchema, notificationRecepients } from "../db/schema";
 import { createId } from "@paralleldrive/cuid2";
 import { and, or } from "drizzle-orm";
 import { orderValidatorSchema, getOrderByIdValidatorSchema } from "../db/validator-schema";
+import { pusherServer } from "~/lib/pusher-server";
 
 const create = authedProcedure.input(orderValidatorSchema).mutation(async ({ ctx, input }) => {
   const { db } = ctx;
@@ -71,6 +72,48 @@ const create = authedProcedure.input(orderValidatorSchema).mutation(async ({ ctx
   });
 
   await Promise.all([chargeWallet, createOrder]);
+
+  // create notification
+
+  const notificationId = createId();
+
+  await db.insert(notificationSchema).values({
+    id: notificationId,
+    entityId: id,
+    entityType: 1,
+    type: "order",
+    senderId: ctx.session.user.id,
+  });
+
+  // create notification recepients
+
+  await db.insert(notificationRecepients).values({
+    id: createId(),
+    notificationId: notificationId,
+    recipientId: partner_id,
+  });
+
+  const notification = await db.query.notification.findFirst({
+    where: (notification, { eq }) => eq(notification.id, notificationId),
+    with: {
+      sender: {
+        columns: {
+          id: true,
+          username: true,
+          name: true,
+          image: true,
+        },
+      },
+    },
+  });
+
+  if (!notification) {
+    return {
+      id: id,
+    };
+  }
+
+  await pusherServer.sendToUser(partner_id, "notification", { notification });
 
   return {
     id: id,

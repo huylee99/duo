@@ -8,6 +8,7 @@ import UserMenu from "./user-menu";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { pusherClient } from "~/lib/pusher-client";
+import { api } from "~/server/utils/api";
 
 const navigation = [
   { name: "Trang chủ", href: "/" },
@@ -47,10 +48,18 @@ const Nav = () => {
   const router = useRouter();
   const session = useSession();
 
+  const { data } = api.notification.getNotifications.useQuery();
+
+  console.log(data);
+
   useEffect(() => {
     if (session.data?.user.id) {
       pusherClient.signin();
       const channel = pusherClient.subscribe(session.data?.user.id);
+
+      pusherClient.bind("notification", (data: any) => {
+        console.log(data);
+      });
     }
   }, [session.data?.user.id]);
 

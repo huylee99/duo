@@ -150,8 +150,8 @@ export const order = mysqlTable(
     refunded_amount: int("refunded_amount").notNull(),
     total_service_completed: int("total_service_completed").notNull(),
     total_service_requested: int("total_service_requested").notNull(),
-    order_status: varchar("status", { enum: ["pending", "accepted", "rejected", "completed"], length: 8 }).notNull(),
-    payment_status: varchar("payment_status", { enum: ["pending", "paid", "refunded"], length: 8 }).notNull(),
+    order_status: varchar("status", { enum: ["pending", "accepted", "rejected", "completed"], length: 20 }).notNull(),
+    payment_status: varchar("payment_status", { enum: ["pending", "paid", "refunded"], length: 20 }).notNull(),
     created_at: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -198,6 +198,38 @@ export const message = mysqlTable("message", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
+
+export const notificationRecepients = mysqlTable("notification_recepients", {
+  id: varchar("id", { length: 24 }).primaryKey().notNull(),
+  recipientId: varchar("recipient_id", { length: 24 }).notNull(),
+  notificationId: varchar("notification_id", { length: 24 }).notNull(),
+});
+
+export const notification = mysqlTable("notification", {
+  id: varchar("id", { length: 24 }).primaryKey().notNull(),
+  entityId: varchar("entity_id", { length: 24 }).notNull(),
+  entityType: int("entity_type").notNull(),
+  type: varchar("type", { enum: ["order", "rating"], length: 10 }).notNull(),
+  senderId: varchar("sender_id", { length: 24 }).notNull(),
+  created_at: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const notificationRelations = relations(notification, ({ one, many }) => ({
+  sender: one(user, {
+    fields: [notification.senderId],
+    references: [user.id],
+  }),
+  recepients: many(notificationRecepients),
+}));
+
+export const notificationRecepientsRelations = relations(notificationRecepients, ({ one }) => ({
+  notification: one(notification, {
+    fields: [notificationRecepients.notificationId],
+    references: [notification.id],
+  }),
+}));
 
 export const userRelations = relations(user, ({ many, one }) => ({
   accounts: many(account),
