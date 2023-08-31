@@ -1,7 +1,7 @@
 import { useSession } from "next-auth/react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import { Bell, Moon, Sun } from "lucide-react";
+import { Bell, Loader2, Moon, Sun } from "lucide-react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import UserMenu from "./user-menu";
@@ -9,6 +9,11 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { pusherClient } from "~/lib/pusher-client";
 import { api } from "~/server/utils/api";
+import useToggle from "~/hooks/use-toggle";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import Image from "next/image";
+import generateNotificationMessage from "~/utils/generate-notification-message";
+import formatRelativeTime from "~/utils/format-relative-time";
 
 const navigation = [
   { name: "Trang chủ", href: "/" },
@@ -44,13 +49,93 @@ const ThemeToggle = () => {
   );
 };
 
+const Notifications = () => {
+  const utils = api.useContext();
+  const { onClose, value, onChange } = useToggle({ initialValue: false });
+  const { data, isLoading } = api.notification.getNotifications.useQuery(undefined, { enabled: value === true });
+  const { data: notificationCount } = api.notification.countUnreadNotifications.useQuery(undefined);
+
+  const { mutate } = api.notification.markAsSeen.useMutation({
+    onSuccess: () => {
+      utils.notification.countUnreadNotifications.setData(undefined, () => ({ count: 0 }));
+    },
+  });
+
+  const { mutate: markAsClicked } = api.notification.markAsClicked.useMutation({
+    onSuccess: ({ id }) => {
+      utils.notification.getNotifications.setData(undefined, oldData => {
+        return oldData?.map(notification => {
+          if (notification.id === id) {
+            return {
+              ...notification,
+              clicked: true,
+            };
+          }
+
+          return notification;
+        });
+      });
+    },
+  });
+
+  return (
+    <>
+      <Popover onOpenChange={onChange} open={value}>
+        <PopoverTrigger asChild>
+          <div
+            className="w-8 h-8 hover:bg-muted rounded-full flex justify-center items-center transition-[background-color] cursor-pointer relative"
+            onClick={() => {
+              if (notificationCount && notificationCount.count > 0) {
+                mutate();
+              }
+            }}
+          >
+            <Bell className="w-5 h-5" />
+            {notificationCount && notificationCount.count > 0 && <div className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full"></div>}
+          </div>
+        </PopoverTrigger>
+        <PopoverContent className="w-96 mr-2 p-2">
+          {isLoading && (
+            <div className="flex items-center justify-center">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
+          {data &&
+            data.length > 0 &&
+            data.map(notification => (
+              <Link
+                href={"/"}
+                key={notification.id}
+                onClick={() => {
+                  if (!notification.clicked) {
+                    markAsClicked({
+                      id: notification.id,
+                    });
+                  }
+                }}
+              >
+                <div className={cn("flex cursor-pointer items-center rounded-md p-2 hover:bg-secondary", notification.seen && "text-muted-foreground")}>
+                  <Image src={notification.sender!.image} width={50} height={50} className="object-cover bg-secondary/50 h-12 w-12 mr-2 shrink-0 rounded-full aspect-square" alt={`${notification.sender!.name || notification.sender!.username}-avatar`} unoptimized />
+
+                  <div className="space-y-1">
+                    <p className="text-sm line-clamp-2">
+                      <span className="">{generateNotificationMessage(notification)}</span>
+                    </p>
+                    <p className="text-xs font-medium text-muted-foreground">{formatRelativeTime(notification.created_at)}</p>
+                  </div>
+                  <div className="ml-auto self-center">{!notification.clicked && <div className="h-2 w-2 rounded-full bg-blue-500"></div>}</div>
+                </div>
+              </Link>
+            ))}
+        </PopoverContent>
+      </Popover>
+    </>
+  );
+};
+
 const Nav = () => {
   const router = useRouter();
   const session = useSession();
-
-  const { data } = api.notification.getNotifications.useQuery();
-
-  console.log(data);
 
   useEffect(() => {
     if (session.data?.user.id) {
@@ -90,9 +175,7 @@ const Nav = () => {
           )}
           {session.status === "authenticated" && (
             <>
-              <div className="w-8 h-8 hover:bg-muted rounded-full flex justify-center items-center transition-[background-color] cursor-pointer">
-                <Bell className="w-5 h-5" />
-              </div>
+              <Notifications />
               <UserMenu />
             </>
           )}

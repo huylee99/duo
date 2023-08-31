@@ -112,3 +112,11 @@ export const orderValidatorSchema = createInsertSchema(schema.order, {
 export const getOrderByIdValidatorSchema = createSelectSchema(schema.order, {
   id: z.string().length(24),
 }).pick({ id: true });
+
+// notification schema
+
+export const markAsClickValidatorSchema = createInsertSchema(schema.notification, {
+  id: z.string().length(24),
+}).pick({
+  id: true,
+});

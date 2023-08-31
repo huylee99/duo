@@ -209,6 +209,8 @@ export const notification = mysqlTable("notification", {
   id: varchar("id", { length: 24 }).primaryKey().notNull(),
   entityId: varchar("entity_id", { length: 24 }).notNull(),
   entityType: int("entity_type").notNull(),
+  seen: boolean("seen").notNull().default(false),
+  clicked: boolean("clicked").notNull().default(false),
   type: varchar("type", { enum: ["order", "rating"], length: 10 }).notNull(),
   senderId: varchar("sender_id", { length: 24 }).notNull(),
   created_at: timestamp("created_at")
