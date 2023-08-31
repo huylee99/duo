@@ -5,6 +5,7 @@ import serviceRouter from "./service";
 import chatRouter from "./chat";
 import walletRouter from "./wallet";
 import orderRouter from "./order";
+import notificationRouter from "./notification";
 
 export const appRouter = createTRPCRouter({
   user: userRouter,
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   chat: chatRouter,
   wallet: walletRouter,
   order: orderRouter,
+  notification: notificationRouter,
 });
 
 export type AppRouter = typeof appRouter;

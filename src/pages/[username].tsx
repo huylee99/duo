@@ -8,9 +8,11 @@ import { StarIcon } from "lucide-react";
 import Hire from "~/components/profile/hire";
 import { api } from "~/server/utils/api";
 import { formatPrice } from "~/utils/format-price";
+import { useSession } from "next-auth/react";
 
 const Profile: NextPageWithLayout = () => {
   const router = useRouter();
+  const session = useSession();
   const { username, tab } = router.query;
 
   const { isLoading, data } = api.user.getUserByUsername.useQuery(
@@ -64,7 +66,7 @@ const Profile: NextPageWithLayout = () => {
                     </div>
                     {data.shortBio && <div className="mt-auto font-medium">{data.shortBio}</div>}
                   </div>
-                  <div className="flex flex-col justify-end gap-2">{!isLoading && data && <Hire userId={data.id} />}</div>
+                  <div className="flex flex-col justify-end gap-2">{!isLoading && data && session.data?.user.username! !== username && <Hire userId={data.id} />}</div>
                 </div>
               </div>
               <div className="flex items-center pb-1 mt-1">
